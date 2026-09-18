@@ -6,7 +6,7 @@
 
 ### Compre, venda e encontre livros usados direto do celular — com foto, descrição, preço e estado de conservação de cada exemplar.
 
-[![Laravel](https://img.shields.io/badge/Backend-Laravel_11-FF2D20?style=for-the-badge&logo=laravel)](#️-stack-tecnológica)
+[![Laravel](https://img.shields.io/badge/Backend-Laravel_12-FF2D20?style=for-the-badge&logo=laravel)](#️-stack-tecnológica)
 [![PHP](https://img.shields.io/badge/Linguagem-PHP_8.2+-777BB4?style=for-the-badge&logo=php)](#️-stack-tecnológica)
 [![Expo](https://img.shields.io/badge/Mobile-Expo_/_React_Native-000020?style=for-the-badge&logo=expo)](#️-stack-tecnológica)
 [![TypeScript](https://img.shields.io/badge/Mobile-TypeScript-3178C6?style=for-the-badge&logo=typescript)](#️-stack-tecnológica)
@@ -188,7 +188,7 @@ traca/
 ## 🛠️ Backend
 
 - PHP 8.2+
-- Laravel 11
+- Laravel 12
 - Eloquent ORM
 - Laravel Sanctum (autenticação por token)
 - Form Requests (validação)
