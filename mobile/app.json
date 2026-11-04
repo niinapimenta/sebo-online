@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "Traça — Sebo Online",
+    "slug": "traca-sebo-online",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "tracaseboonline",
+    "userInterfaceStyle": "automatic",
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "O Traça usa a câmera para fotografar as capas dos livros anunciados.",
+          "recordAudioAndroid": false
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
