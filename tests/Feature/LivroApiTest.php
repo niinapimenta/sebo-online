@@ -3,14 +3,30 @@
 namespace Tests\Feature;
 
 use App\Models\Livro;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class LivroApiTest extends TestCase
 {
     use RefreshDatabase;
+
+    private function autenticarUsuario(?User $user = null): User
+    {
+        $user ??= User::factory()->create();
+
+        Sanctum::actingAs($user);
+
+        return $user;
+    }
+
+    private function criarLivroDoVendedor(User $vendedor, array $attributes = []): Livro
+    {
+        return Livro::factory()->for($vendedor, 'user')->create($attributes);
+    }
 
     public function test_can_list_all_books(): void
     {
@@ -36,6 +52,24 @@ class LivroApiTest extends TestCase
                     'updated_at',
                 ],
             ]);
+    }
+
+    public function test_public_catalog_includes_books_from_all_vendors_and_legacy_books(): void
+    {
+        $primeiroVendedor = User::factory()->create(['name' => 'Vendedora Um']);
+        $segundoVendedor = User::factory()->create(['name' => 'Vendedor Dois']);
+
+        $primeiroVendedor->livros()->create(Livro::factory()->make()->getAttributes());
+        $segundoVendedor->livros()->create(Livro::factory()->make()->getAttributes());
+        Livro::factory()->create();
+
+        $response = $this->getJson('/api/livros');
+
+        $response->assertOk()
+            ->assertJsonCount(3)
+            ->assertJsonFragment(['name' => 'Vendedora Um'])
+            ->assertJsonFragment(['name' => 'Vendedor Dois'])
+            ->assertJsonFragment(['vendedor' => null]);
     }
 
     public function test_can_filter_books_by_search_query(): void
@@ -84,7 +118,45 @@ class LivroApiTest extends TestCase
                 'data_publicacao' => '1881-01-01',
                 'descricao' => 'Excelente estado.',
                 'foto' => null,
+                'vendedor' => null,
             ]);
+    }
+
+    public function test_public_book_response_contains_only_public_vendor_identity(): void
+    {
+        $vendedor = User::factory()->create([
+            'name' => 'Vendedora Pública',
+            'email' => 'privado@example.test',
+        ]);
+        $livro = $vendedor->livros()->create(Livro::factory()->make()->getAttributes());
+
+        $response = $this->getJson("/api/livros/{$livro->id}");
+
+        $response->assertOk()
+            ->assertJsonPath('vendedor.id', $vendedor->id)
+            ->assertJsonPath('vendedor.name', 'Vendedora Pública')
+            ->assertJsonMissingPath('vendedor.email')
+            ->assertJsonMissingPath('vendedor.password')
+            ->assertJsonMissingPath('vendedor.tokens')
+            ->assertJsonMissingPath('token');
+    }
+
+    public function test_unauthenticated_visitors_cannot_write_books(): void
+    {
+        $livro = Livro::factory()->create();
+        $payload = [
+            'titulo' => 'Livro de Teste',
+            'autor' => 'Autora Teste',
+            'preco' => 20.00,
+            'estoque' => 1,
+            'ano_publicacao' => 2020,
+            'data_publicacao' => '2020-01-01',
+        ];
+
+        $this->postJson('/api/livros', $payload)->assertUnauthorized();
+        $this->putJson("/api/livros/{$livro->id}", $payload)->assertUnauthorized();
+        $this->patchJson("/api/livros/{$livro->id}", ['estoque' => 2])->assertUnauthorized();
+        $this->deleteJson("/api/livros/{$livro->id}")->assertUnauthorized();
     }
 
     public function test_returns_404_when_book_does_not_exist(): void
@@ -99,6 +171,8 @@ class LivroApiTest extends TestCase
 
     public function test_can_create_a_book_without_photo(): void
     {
+        $vendedor = $this->autenticarUsuario();
+        $outroUsuario = User::factory()->create();
         $payload = [
             'titulo' => 'Vidas Secas',
             'autor' => 'Graciliano Ramos',
@@ -107,6 +181,7 @@ class LivroApiTest extends TestCase
             'estoque' => 7,
             'ano_publicacao' => 1938,
             'data_publicacao' => '1938-05-10',
+            'user_id' => $outroUsuario->id,
             'descricao' => 'Clássico da literatura regionalista.',
         ];
 
@@ -124,16 +199,24 @@ class LivroApiTest extends TestCase
                 'foto' => null,
             ]);
 
+        $response->assertJsonPath('vendedor.id', $vendedor->id)
+            ->assertJsonPath('vendedor.name', $vendedor->name)
+            ->assertJsonMissingPath('vendedor.email')
+            ->assertJsonMissingPath('vendedor.password')
+            ->assertJsonMissingPath('vendedor.tokens');
+
         $this->assertDatabaseHas('livros', [
             'titulo' => 'Vidas Secas',
             'autor' => 'Graciliano Ramos',
             'preco' => 32.00,
             'estoque' => 7,
+            'user_id' => $vendedor->id,
         ]);
     }
 
     public function test_can_create_a_book_with_photo_upload(): void
     {
+        $vendedor = $this->autenticarUsuario();
         Storage::fake('public');
 
         $foto = UploadedFile::fake()->create('capa_dom_casmurro.jpg', 200, 'image/jpeg');
@@ -166,10 +249,14 @@ class LivroApiTest extends TestCase
 
         $this->assertNotNull($response->json('foto'));
         $this->assertStringContainsString('/storage/livros/', $response->json('foto'));
+        $this->assertSame($vendedor->id, $livro->user_id);
+        $response->assertJsonPath('vendedor.id', $vendedor->id);
     }
 
     public function test_validates_required_fields_when_creating_book(): void
     {
+        $this->autenticarUsuario();
+
         $response = $this->postJson('/api/livros', []);
 
         $response->assertStatus(422)
@@ -185,6 +272,8 @@ class LivroApiTest extends TestCase
 
     public function test_validates_numeric_rules_for_price_and_stock(): void
     {
+        $this->autenticarUsuario();
+
         $response = $this->postJson('/api/livros', [
             'titulo' => 'Livro Inválido',
             'autor' => 'Autor Teste',
@@ -200,6 +289,8 @@ class LivroApiTest extends TestCase
 
     public function test_validates_future_publication_year(): void
     {
+        $this->autenticarUsuario();
+
         $anoFuturo = (int) date('Y') + 5;
 
         $response = $this->postJson('/api/livros', [
@@ -217,6 +308,8 @@ class LivroApiTest extends TestCase
 
     public function test_validates_invalid_photo_file(): void
     {
+        $this->autenticarUsuario();
+
         $arquivoInvalido = UploadedFile::fake()->create('documento.pdf', 100, 'application/pdf');
 
         $response = $this->postJson('/api/livros', [
@@ -235,6 +328,8 @@ class LivroApiTest extends TestCase
 
     public function test_validates_photo_max_size(): void
     {
+        $this->autenticarUsuario();
+
         // 6000 KB exceeds the 5120 KB limit
         $fotoGrande = UploadedFile::fake()->create('foto_gigante.jpg', 6000, 'image/jpeg');
 
@@ -254,7 +349,8 @@ class LivroApiTest extends TestCase
 
     public function test_can_update_a_book_with_put(): void
     {
-        $livro = Livro::factory()->create([
+        $vendedor = $this->autenticarUsuario();
+        $livro = $this->criarLivroDoVendedor($vendedor, [
             'titulo' => 'Título Antigo',
             'autor' => 'Autor Antigo',
             'preco' => 20.00,
@@ -292,7 +388,9 @@ class LivroApiTest extends TestCase
 
     public function test_can_partially_update_a_book_with_patch(): void
     {
-        $livro = Livro::factory()->create([
+        $vendedor = User::factory()->create();
+        $this->autenticarUsuario($vendedor);
+        $livro = $this->criarLivroDoVendedor($vendedor, [
             'titulo' => 'Iracema',
             'autor' => 'José de Alencar',
             'preco' => 18.00,
@@ -322,12 +420,13 @@ class LivroApiTest extends TestCase
 
     public function test_can_update_photo_and_removes_old_photo_from_disk(): void
     {
+        $vendedor = $this->autenticarUsuario();
         Storage::fake('public');
 
         $fotoAntiga = UploadedFile::fake()->create('antiga.jpg', 100, 'image/jpeg');
         $caminhoAntigo = $fotoAntiga->store('livros', 'public');
 
-        $livro = Livro::factory()->create([
+        $livro = $this->criarLivroDoVendedor($vendedor, [
             'foto' => $caminhoAntigo,
         ]);
 
@@ -356,6 +455,8 @@ class LivroApiTest extends TestCase
 
     public function test_returns_404_when_updating_nonexistent_book(): void
     {
+        $this->autenticarUsuario();
+
         $response = $this->putJson('/api/livros/99999', [
             'titulo' => 'Teste',
             'autor' => 'Autor',
@@ -373,12 +474,13 @@ class LivroApiTest extends TestCase
 
     public function test_can_delete_a_book_and_removes_its_photo(): void
     {
+        $vendedor = $this->autenticarUsuario();
         Storage::fake('public');
 
         $foto = UploadedFile::fake()->create('foto_excluir.jpg', 100, 'image/jpeg');
         $caminhoFoto = $foto->store('livros', 'public');
 
-        $livro = Livro::factory()->create([
+        $livro = $this->criarLivroDoVendedor($vendedor, [
             'foto' => $caminhoFoto,
         ]);
 
@@ -397,11 +499,156 @@ class LivroApiTest extends TestCase
 
     public function test_returns_404_when_deleting_nonexistent_book(): void
     {
+        $this->autenticarUsuario();
+
         $response = $this->deleteJson('/api/livros/99999');
 
         $response->assertStatus(404)
             ->assertJson([
                 'message' => 'Livro não encontrado.',
             ]);
+    }
+
+    public function test_seller_cannot_update_another_sellers_book(): void
+    {
+        $owner = User::factory()->create();
+        $this->autenticarUsuario();
+        $livro = $this->criarLivroDoVendedor($owner, ['titulo' => 'Título original']);
+
+        $response = $this->patchJson("/api/livros/{$livro->id}", [
+            'titulo' => 'Título alterado',
+        ]);
+
+        $response->assertNotFound();
+        $this->assertDatabaseHas('livros', [
+            'id' => $livro->id,
+            'titulo' => 'Título original',
+            'user_id' => $owner->id,
+        ]);
+    }
+
+    public function test_seller_cannot_delete_another_sellers_book(): void
+    {
+        $owner = User::factory()->create();
+        $this->autenticarUsuario();
+        $livro = $this->criarLivroDoVendedor($owner);
+
+        $this->deleteJson("/api/livros/{$livro->id}")->assertNotFound();
+
+        $this->assertDatabaseHas('livros', [
+            'id' => $livro->id,
+            'user_id' => $owner->id,
+        ]);
+    }
+
+    public function test_seller_cannot_update_or_delete_a_book_without_an_owner(): void
+    {
+        $this->autenticarUsuario();
+        $livro = Livro::factory()->create(['titulo' => 'Livro legado']);
+
+        $this->patchJson("/api/livros/{$livro->id}", ['titulo' => 'Alterado'])
+            ->assertNotFound();
+        $this->deleteJson("/api/livros/{$livro->id}")->assertNotFound();
+
+        $this->assertDatabaseHas('livros', [
+            'id' => $livro->id,
+            'titulo' => 'Livro legado',
+            'user_id' => null,
+        ]);
+    }
+
+    public function test_public_seller_library_exposes_only_available_books_and_public_data(): void
+    {
+        Storage::fake('public');
+        $vendedor = User::factory()->create([
+            'name' => 'Vendedor Público',
+            'email' => 'privado@example.test',
+        ]);
+        $outroVendedor = User::factory()->create();
+
+        $caminhoFoto = UploadedFile::fake()
+            ->create('capa.jpg', 100, 'image/jpeg')
+            ->store('livros', 'public');
+
+        $livroDisponivelComFoto = $this->criarLivroDoVendedor($vendedor, [
+            'titulo' => 'Livro disponível com foto',
+            'estoque' => 2,
+            'foto' => $caminhoFoto,
+        ]);
+        $livroDisponivel = $this->criarLivroDoVendedor($vendedor, [
+            'titulo' => 'Outro livro disponível',
+            'estoque' => 1,
+        ]);
+        $livroSemEstoque = $this->criarLivroDoVendedor($vendedor, ['estoque' => 0]);
+        $livroDeOutroVendedor = $this->criarLivroDoVendedor($outroVendedor, ['estoque' => 5]);
+        $livroLegado = Livro::factory()->create(['estoque' => 4, 'user_id' => null]);
+
+        $response = $this->getJson("/api/vendedores/{$vendedor->id}");
+
+        $response->assertOk()
+            ->assertJsonPath('data.vendedor.id', $vendedor->id)
+            ->assertJsonPath('data.vendedor.name', 'Vendedor Público')
+            ->assertJsonCount(2, 'data.livros')
+            ->assertJsonStructure([
+                'data' => [
+                    'vendedor' => ['id', 'name'],
+                    'livros' => [
+                        '*' => [
+                            'id',
+                            'titulo',
+                            'autor',
+                            'editora',
+                            'preco',
+                            'estoque',
+                            'ano_publicacao',
+                            'data_publicacao',
+                            'descricao',
+                            'foto',
+                            'vendedor' => ['id', 'name'],
+                            'created_at',
+                            'updated_at',
+                        ],
+                    ],
+                ],
+            ])
+            ->assertJsonMissingPath('data.vendedor.email')
+            ->assertJsonMissingPath('data.vendedor.password')
+            ->assertJsonMissingPath('data.vendedor.tokens');
+
+        $this->assertSame(
+            ['id', 'name'],
+            array_keys($response->json('data.vendedor')),
+        );
+        $this->assertEqualsCanonicalizing(
+            [$livroDisponivelComFoto->id, $livroDisponivel->id],
+            array_column($response->json('data.livros'), 'id'),
+        );
+        $this->assertStringContainsString(
+            '/storage/livros/',
+            $response->json('data.livros.0.foto') === null
+                ? $response->json('data.livros.1.foto')
+                : $response->json('data.livros.0.foto'),
+        );
+        $this->assertGreaterThan(0, $response->json('data.livros.0.estoque'));
+        $this->assertGreaterThan(0, $response->json('data.livros.1.estoque'));
+        $this->assertNotContains($livroSemEstoque->id, array_column($response->json('data.livros'), 'id'));
+        $this->assertNotContains($livroDeOutroVendedor->id, array_column($response->json('data.livros'), 'id'));
+        $this->assertNotContains($livroLegado->id, array_column($response->json('data.livros'), 'id'));
+    }
+
+    public function test_public_seller_library_returns_404_for_unknown_seller(): void
+    {
+        $this->getJson('/api/vendedores/99999')->assertNotFound();
+    }
+
+    public function test_public_seller_library_returns_empty_books_when_none_are_available(): void
+    {
+        $vendedor = User::factory()->create();
+        $this->criarLivroDoVendedor($vendedor, ['estoque' => 0]);
+
+        $this->getJson("/api/vendedores/{$vendedor->id}")
+            ->assertOk()
+            ->assertJsonPath('data.vendedor.id', $vendedor->id)
+            ->assertJsonPath('data.livros', []);
     }
 }

@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 
 class Livro extends Model
@@ -42,6 +44,16 @@ class Livro extends Model
             'ano_publicacao' => 'integer',
             'data_publicacao' => 'date:Y-m-d',
         ];
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function itensPedido(): HasMany
+    {
+        return $this->hasMany(ItemPedido::class);
     }
 
     /**

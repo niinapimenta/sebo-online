@@ -42,6 +42,12 @@ class LivroResource extends JsonResource
                 : (string) $this->data_publicacao,
             'descricao' => $this->descricao,
             'foto' => $fotoUrl,
+            'vendedor' => $this->user
+                ? [
+                    'id' => $this->user->id,
+                    'name' => $this->user->name,
+                ]
+                : null,
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];

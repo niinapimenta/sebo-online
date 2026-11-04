@@ -2,6 +2,20 @@
 
 use Laravel\Sanctum\Sanctum;
 
+$statefulDomains = array_merge(
+    explode(',', (string) env('SANCTUM_STATEFUL_DOMAINS', '')),
+    [
+        'localhost',
+        'localhost:3000',
+        'localhost:8081',
+        '127.0.0.1',
+        '127.0.0.1:8000',
+        '127.0.0.1:8081',
+        '::1',
+    ],
+    explode(',', Sanctum::currentApplicationUrlWithPort()),
+);
+
 return [
 
     /*
@@ -15,12 +29,7 @@ return [
     |
     */
 
-    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
-        '%s%s',
-        'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
-        Sanctum::currentApplicationUrlWithPort(),
-        // Sanctum::currentRequestHost(),
-    ))),
+    'stateful' => array_values(array_unique(array_filter(array_map('trim', $statefulDomains)))),
 
     /*
     |--------------------------------------------------------------------------
@@ -47,7 +56,7 @@ return [
     |
     */
 
-    'expiration' => null,
+    'expiration' => 43200,
 
     /*
     |--------------------------------------------------------------------------

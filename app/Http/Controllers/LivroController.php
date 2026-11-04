@@ -21,7 +21,7 @@ class LivroController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = Livro::query();
+        $query = Livro::query()->with('user');
 
         if ($request->filled('busca')) {
             $busca = $request->input('busca');
@@ -33,6 +33,23 @@ class LivroController extends Controller
         }
 
         $livros = $query->latest()->get();
+
+        return LivroResource::collection($livros);
+    }
+
+    /**
+     * List the authenticated seller's books that still have available stock.
+     *
+     * GET /api/meus-livros
+     */
+    public function mine(Request $request): AnonymousResourceCollection
+    {
+        $livros = $request->user()
+            ->livros()
+            ->with('user')
+            ->where('estoque', '>', 0)
+            ->latest()
+            ->get();
 
         return LivroResource::collection($livros);
     }
@@ -51,7 +68,8 @@ class LivroController extends Controller
             $data['foto'] = $fotoPath;
         }
 
-        $livro = Livro::create($data);
+        $livro = $request->user()->livros()->create($data);
+        $livro->load('user');
 
         return (new LivroResource($livro))
             ->response()
@@ -65,7 +83,7 @@ class LivroController extends Controller
      */
     public function show($id): LivroResource|JsonResponse
     {
-        $livro = Livro::find($id);
+        $livro = Livro::with('user')->find($id);
 
         if (! $livro) {
             return response()->json([
@@ -83,7 +101,7 @@ class LivroController extends Controller
      */
     public function update(UpdateLivroRequest $request, $id): LivroResource|JsonResponse
     {
-        $livro = Livro::find($id);
+        $livro = $request->user()->livros()->with('user')->find($id);
 
         if (! $livro) {
             return response()->json([
@@ -113,9 +131,9 @@ class LivroController extends Controller
      *
      * DELETE /api/livros/{id}
      */
-    public function destroy($id): Response|JsonResponse
+    public function destroy(Request $request, $id): Response|JsonResponse
     {
-        $livro = Livro::find($id);
+        $livro = $request->user()->livros()->find($id);
 
         if (! $livro) {
             return response()->json([
