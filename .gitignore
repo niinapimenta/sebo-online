@@ -23,6 +23,10 @@ Homestead.json
 
 /public/build
 /storage/pail
+.env
+.env.*
+!.env.example
+!.env.*.example
 .env.backup
 .env.production
 .phpactor.json

@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
+use App\Support\PublicStorageImageUrl;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Storage;
 
 class Livro extends Model
 {
@@ -61,14 +61,6 @@ class Livro extends Model
      */
     public function getFotoUrlAttribute(): ?string
     {
-        if (! $this->foto) {
-            return null;
-        }
-
-        if (str_starts_with($this->foto, 'http://') || str_starts_with($this->foto, 'https://')) {
-            return $this->foto;
-        }
-
-        return Storage::disk('public')->url($this->foto);
+        return PublicStorageImageUrl::make($this->foto, request());
     }
 }

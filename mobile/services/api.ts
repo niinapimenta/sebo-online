@@ -3,8 +3,27 @@ import axios from "axios";
 import { Platform } from "react-native";
 import { getAuthToken } from "./tokenStorage";
 
+export function getApiBaseUrl(): string {
+  if (Platform.OS === "web" && typeof window !== "undefined") {
+    const { hostname, protocol } = window.location;
+    return `${protocol}//${hostname}:8000/api`;
+  }
+
+  const baseUrl = process.env.EXPO_PUBLIC_API_URL?.trim().replace(/\/+$/, "");
+
+  if (!baseUrl) {
+    throw new Error("Configure EXPO_PUBLIC_API_URL para conectar à API Laravel.");
+  }
+
+  if (!/\/api$/i.test(baseUrl)) {
+    throw new Error("EXPO_PUBLIC_API_URL deve terminar com /api.");
+  }
+
+  return baseUrl;
+}
+
 const api = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL,
+  baseURL: getApiBaseUrl(),
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",

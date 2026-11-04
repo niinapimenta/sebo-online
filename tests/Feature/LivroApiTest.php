@@ -248,7 +248,7 @@ class LivroApiTest extends TestCase
         Storage::disk('public')->assertExists($livro->foto);
 
         $this->assertNotNull($response->json('foto'));
-        $this->assertStringContainsString('/storage/livros/', $response->json('foto'));
+        $this->assertStringContainsString('/api/public-images/livros/', $response->json('foto'));
         $this->assertSame($vendedor->id, $livro->user_id);
         $response->assertJsonPath('vendedor.id', $vendedor->id);
     }
@@ -624,7 +624,7 @@ class LivroApiTest extends TestCase
             array_column($response->json('data.livros'), 'id'),
         );
         $this->assertStringContainsString(
-            '/storage/livros/',
+            '/api/public-images/livros/',
             $response->json('data.livros.0.foto') === null
                 ? $response->json('data.livros.1.foto')
                 : $response->json('data.livros.0.foto'),

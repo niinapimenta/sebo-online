@@ -165,6 +165,16 @@ export default function LoginScreen() {
             )}
           </TouchableOpacity>
 
+          <TouchableOpacity
+            accessibilityRole="link"
+            disabled={submitting}
+            onPress={() => router.push("/(auth)/esqueci-senha" as Href)}
+            style={styles.forgotPasswordButton}
+            activeOpacity={0.75}
+          >
+            <Text style={styles.link}>Esqueci minha senha</Text>
+          </TouchableOpacity>
+
           <Text style={styles.switchText}>
             Ainda não tem conta?{" "}
             <Text
@@ -251,6 +261,7 @@ const styles = StyleSheet.create({
   disabledButton: { opacity: 0.55 },
   primaryButtonText: { color: theme.colors.white, fontSize: 13, fontWeight: "700" },
   switchText: { color: theme.colors.body, fontSize: 12, textAlign: "center" },
+  forgotPasswordButton: { alignSelf: "center", paddingVertical: 2 },
   link: { color: theme.colors.accent, fontWeight: "700" },
   backButton: { alignSelf: "center", paddingVertical: 4 },
   backButtonText: { color: theme.colors.muted, fontSize: 11, fontWeight: "600" },

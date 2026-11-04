@@ -124,6 +124,15 @@ export default function ProfileScreen() {
             <Text style={styles.historyLinkText}>Consultar histórico de compras</Text>
           </TouchableOpacity>
 
+          <TouchableOpacity
+            accessibilityRole="link"
+            onPress={() => router.push("/alterar-senha" as Href)}
+            style={styles.historyLink}
+            activeOpacity={0.75}
+          >
+            <Text style={styles.historyLinkText}>Alterar senha</Text>
+          </TouchableOpacity>
+
           {saida.isError ? (
             <Text accessibilityRole="alert" style={styles.errorNotice}>
               Não foi possível encerrar sua sessão. Você continua conectado; tente novamente.

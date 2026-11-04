@@ -1,5 +1,15 @@
 <?php
 
+$frontendUrl = trim((string) env('FRONTEND_URL', ''));
+$frontendOrigin = null;
+if ($frontendUrl !== '') {
+    $parts = parse_url($frontendUrl);
+    if (is_array($parts) && isset($parts['scheme'], $parts['host'])) {
+        $frontendOrigin = $parts['scheme'].'://'.$parts['host']
+            .(isset($parts['port']) ? ':'.$parts['port'] : '');
+    }
+}
+
 return [
     'paths' => ['api/*', 'login', 'logout', 'sanctum/csrf-cookie'],
 
@@ -8,6 +18,7 @@ return [
     'allowed_origins' => [
         'http://localhost:8081',
         'http://127.0.0.1:8081',
+        ...($frontendOrigin ? [$frontendOrigin] : []),
     ],
 
     'allowed_origins_patterns' => [],

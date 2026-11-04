@@ -2,6 +2,13 @@
 
 use Laravel\Sanctum\Sanctum;
 
+$frontendUrl = (string) env('FRONTEND_URL', '');
+$frontendHost = parse_url($frontendUrl, PHP_URL_HOST);
+$frontendPort = parse_url($frontendUrl, PHP_URL_PORT);
+$frontendStatefulDomain = is_string($frontendHost) && $frontendHost !== ''
+    ? [$frontendHost.($frontendPort ? ':'.$frontendPort : '')]
+    : [];
+
 $statefulDomains = array_merge(
     explode(',', (string) env('SANCTUM_STATEFUL_DOMAINS', '')),
     [
@@ -13,6 +20,7 @@ $statefulDomains = array_merge(
         '127.0.0.1:8081',
         '::1',
     ],
+    $frontendStatefulDomain,
     explode(',', Sanctum::currentApplicationUrlWithPort()),
 );
 

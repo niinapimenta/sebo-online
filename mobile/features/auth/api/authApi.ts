@@ -1,32 +1,28 @@
 import axios from "axios";
 import { Platform } from "react-native";
-import api from "@/services/api";
+import api, { getApiBaseUrl } from "@/services/api";
 import { getAuthToken, removeAuthToken, setAuthToken } from "@/services/tokenStorage";
 import type {
   ApiData,
+  ApiMessage,
   AuthUser,
+  ChangePasswordPayload,
+  ForgotPasswordPayload,
   LoginPayload,
   MobileLoginResponse,
   RegisterPayload,
+  ResetPasswordPayload,
   UpdateProfilePayload,
 } from "../types/Auth";
 
-function getApiBaseUrl(): string {
-  const baseUrl = process.env.EXPO_PUBLIC_API_URL?.trim().replace(/\/+$/, "");
-
-  if (!baseUrl) {
-    throw new Error("Configure EXPO_PUBLIC_API_URL para conectar à API Laravel.");
-  }
+function getLaravelRootUrl(): string {
+  const baseUrl = getApiBaseUrl().trim().replace(/\/+$/, "");
 
   if (!/\/api$/i.test(baseUrl)) {
-    throw new Error("EXPO_PUBLIC_API_URL deve terminar com /api.");
+    throw new Error("A URL da API deve terminar com /api.");
   }
 
-  return baseUrl;
-}
-
-function getLaravelRootUrl(): string {
-  return getApiBaseUrl().replace(/\/api$/i, "");
+  return baseUrl.replace(/\/api$/i, "");
 }
 
 const webSessionApi = axios.create({
@@ -134,4 +130,37 @@ export async function updateAuthenticatedUser(
       : await api.patch<ApiData<AuthUser>>("/user", payload);
 
   return response.data.data;
+}
+
+export async function changePassword(payload: ChangePasswordPayload): Promise<string> {
+  if (Platform.OS === "web") {
+    await initializeWebCsrf();
+    const response = await webSessionApi.patch<ApiMessage>(`${getApiBaseUrl()}/password`, payload);
+    return response.data.message;
+  }
+
+  const response = await api.patch<ApiMessage>("/password", payload);
+  return response.data.message;
+}
+
+export async function requestPasswordReset(payload: ForgotPasswordPayload): Promise<string> {
+  if (Platform.OS === "web") {
+    await initializeWebCsrf();
+    const response = await webSessionApi.post<ApiMessage>(`${getApiBaseUrl()}/forgot-password`, payload);
+    return response.data.message;
+  }
+
+  const response = await api.post<ApiMessage>("/forgot-password", payload);
+  return response.data.message;
+}
+
+export async function resetPassword(payload: ResetPasswordPayload): Promise<string> {
+  if (Platform.OS === "web") {
+    await initializeWebCsrf();
+    const response = await webSessionApi.post<ApiMessage>(`${getApiBaseUrl()}/reset-password`, payload);
+    return response.data.message;
+  }
+
+  const response = await api.post<ApiMessage>("/reset-password", payload);
+  return response.data.message;
 }

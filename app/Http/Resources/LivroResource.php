@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
+use App\Support\PublicStorageImageUrl;
 
 class LivroResource extends JsonResource
 {
@@ -22,12 +22,7 @@ class LivroResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $fotoUrl = null;
-        if ($this->foto) {
-            $fotoUrl = (str_starts_with($this->foto, 'http://') || str_starts_with($this->foto, 'https://'))
-                ? $this->foto
-                : Storage::disk('public')->url($this->foto);
-        }
+        $fotoUrl = PublicStorageImageUrl::make($this->foto, $request);
 
         return [
             'id' => $this->id,

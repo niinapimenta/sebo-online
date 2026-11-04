@@ -244,6 +244,18 @@ A API é responsável por validar as informações, controlar os dados e disponi
 
 As operações que dependem de autenticação exigem uma sessão válida.
 
+### Senha e recuperação por e-mail
+
+- `PATCH /api/password` altera a senha da conta autenticada. Envie `current_password`, `password` e `password_confirmation`.
+- `POST /api/forgot-password` solicita um link de recuperação pelo broker nativo do Laravel.
+- `POST /api/reset-password` recebe `email`, `token`, `password` e `password_confirmation`.
+
+Para entregar mensagens de recuperação, configure no ambiente do Laravel um mailer real (`MAIL_MAILER`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_SCHEME`, credenciais SMTP quando necessárias, `MAIL_FROM_ADDRESS` e `MAIL_FROM_NAME`). Configure também `FRONTEND_URL` com a origem acessível do Expo Web, sem caminho, por exemplo a origem de desenvolvimento `http://localhost:8081`. Essa origem é adicionada ao CORS e aos domínios stateful do Sanctum. Não use `log` ou `array` para entrega: o endpoint retorna indisponibilidade em vez de afirmar que enviou a mensagem.
+
+O link enviado abre `/redefinir-senha` no frontend e inclui o token e o e-mail. Em celular físico, `FRONTEND_URL` precisa ser acessível pelo dispositivo; `localhost` apontaria para o próprio celular.
+
+As imagens ficam no disco público em `storage/app/public` e são expostas por `public/storage`. A API gera as URLs com o host da requisição, para que o endereço de imagens use o mesmo host de rede que o aplicativo está acessando.
+
 ---
 
 ## 🧪 Testes
