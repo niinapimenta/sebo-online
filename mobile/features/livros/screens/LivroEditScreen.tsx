@@ -1,3 +1,4 @@
+import { theme } from "@/theme";
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { mensagemErroApi } from "@/services/apiError";
 import LivroForm from "../components/LivroForm";
@@ -21,7 +22,7 @@ export default function LivroEditScreen({ id }: { id: string }) {
   if (livroQuery.isLoading) {
     return (
       <View style={styles.stateContainer}>
-        <ActivityIndicator size="large" color="#536b51" />
+        <ActivityIndicator size="large" color={theme.colors.accent} />
         <Text style={styles.stateMessage}>Carregando livro…</Text>
       </View>
     );
@@ -83,21 +84,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 12,
-    backgroundColor: "#f5f1e8",
+    backgroundColor: theme.colors.canvas,
     padding: 24,
   },
   stateMessage: {
-    color: "#78664f",
+    color: theme.colors.body,
     fontSize: 14,
   },
   errorTitle: {
-    color: "#493b2a",
+    color: theme.colors.ink,
     fontSize: 19,
     fontWeight: "700",
     textAlign: "center",
   },
   errorMessage: {
-    color: "#78664f",
+    color: theme.colors.body,
     fontSize: 14,
     lineHeight: 21,
     textAlign: "center",
@@ -108,8 +109,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 4,
     paddingHorizontal: 16,
-    borderRadius: 9,
-    backgroundColor: "#536b51",
+    borderRadius: 5,
+    backgroundColor: theme.colors.accent,
   },
-  retryButtonText: { color: "#fffdf8", fontSize: 13, fontWeight: "700" },
+  retryButtonText: { color: theme.colors.surface, fontSize: 13, fontWeight: "700" },
 });

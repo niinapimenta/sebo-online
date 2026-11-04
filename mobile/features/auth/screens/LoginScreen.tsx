@@ -12,7 +12,10 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
+import AuthStoryPanel from "@/components/brand/AuthStoryPanel";
+import { theme } from "@/theme";
 import { useLogin } from "../hooks/useLogin";
 import {
   LoginSchema,
@@ -42,6 +45,8 @@ function mensagemDoErro(error: unknown): string {
 }
 
 export default function LoginScreen() {
+  const { width } = useWindowDimensions();
+  const layoutAmplo = width >= 900;
   const loginMutation = useLogin();
   const params = useLocalSearchParams<{ returnTo?: string | string[] }>();
   const returnTo = Array.isArray(params.returnTo)
@@ -79,12 +84,13 @@ export default function LoginScreen() {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.card}>
-          <Text style={styles.brand}>traça</Text>
-          <Text style={styles.eyebrow}>SEBO ONLINE</Text>
-          <Text style={styles.title}>Que bom ter você de volta.</Text>
+        <View style={[styles.authLayout, layoutAmplo && styles.authLayoutWide]}>
+          {layoutAmplo ? <AuthStoryPanel mode="login" /> : null}
+          <View style={[styles.card, layoutAmplo && styles.cardWide]}>
+          <Text style={styles.eyebrow}>BEM-VINDA DE VOLTA</Text>
+          <Text style={styles.title}>Que bom ter você por aqui.</Text>
           <Text style={styles.subtitle}>
-            Entre na sua conta para continuar cuidando dos seus livros.
+            Entre na sua conta e continue sua próxima história.
           </Text>
 
           {loginMutation.isError ? (
@@ -108,7 +114,7 @@ export default function LoginScreen() {
                   onBlur={field.onBlur}
                   onChangeText={field.onChange}
                   placeholder="voce@exemplo.com"
-                  placeholderTextColor="#a39887"
+                  placeholderTextColor={theme.colors.muted}
                   style={[styles.input, fieldState.error && styles.inputError]}
                   value={field.value}
                 />
@@ -133,7 +139,7 @@ export default function LoginScreen() {
                   onBlur={field.onBlur}
                   onChangeText={field.onChange}
                   placeholder="Digite sua senha"
-                  placeholderTextColor="#a39887"
+                  placeholderTextColor={theme.colors.muted}
                   secureTextEntry
                   style={[styles.input, fieldState.error && styles.inputError]}
                   value={field.value}
@@ -153,7 +159,7 @@ export default function LoginScreen() {
             activeOpacity={0.82}
           >
             {submitting ? (
-              <ActivityIndicator color="#fffdf8" />
+              <ActivityIndicator color={theme.colors.surface} />
             ) : (
               <Text style={styles.primaryButtonText}>Entrar</Text>
             )}
@@ -178,6 +184,7 @@ export default function LoginScreen() {
           >
             <Text style={styles.backButtonText}>Voltar ao acervo</Text>
           </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -185,63 +192,66 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#f5f1e8" },
+  screen: { flex: 1, backgroundColor: theme.colors.canvas },
   scrollContent: {
     flexGrow: 1,
     justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
+    alignItems: "stretch",
+    paddingHorizontal: 20,
+    paddingVertical: 28,
   },
+  authLayout: { width: "100%", maxWidth: 1020, alignSelf: "center", alignItems: "center" },
+  authLayoutWide: { flexDirection: "row", alignItems: "stretch", justifyContent: "center", gap: 26 },
   card: {
     width: "100%",
     maxWidth: 480,
-    gap: 16,
-    padding: 26,
-    borderRadius: 16,
+    gap: 18,
+    padding: 30,
+    borderRadius: 6,
     borderWidth: 1,
-    borderColor: "#e7dfd2",
-    backgroundColor: "#fffdf8",
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surface,
   },
-  brand: { color: "#493b2a", fontSize: 29, fontWeight: "800", letterSpacing: -1.5 },
-  eyebrow: { color: "#9a684c", fontSize: 10, fontWeight: "800", letterSpacing: 2 },
-  title: { color: "#493b2a", fontSize: 27, lineHeight: 33, fontWeight: "800" },
-  subtitle: { color: "#78664f", fontSize: 14, lineHeight: 21 },
+  cardWide: { flex: 1, maxWidth: 470, justifyContent: "center" },
+  eyebrow: { color: theme.colors.accent, fontSize: 9, fontWeight: "700", letterSpacing: 1.8 },
+  title: { color: theme.colors.ink, fontFamily: theme.fonts.serif, fontSize: 31, lineHeight: 37, fontWeight: "400" },
+  subtitle: { color: theme.colors.body, fontSize: 13, lineHeight: 20 },
   field: { gap: 6 },
-  label: { color: "#5d4e3d", fontSize: 13, fontWeight: "600" },
+  label: { color: theme.colors.ink, fontSize: 11, fontWeight: "600" },
   input: {
     minHeight: 46,
     borderWidth: 1,
-    borderColor: "#d9d0c2",
-    borderRadius: 9,
+    borderColor: theme.colors.borderStrong,
+    borderRadius: 5,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    color: "#493b2a",
-    backgroundColor: "#fffefa",
-    fontSize: 15,
-  },
-  inputError: { borderColor: "#b34e3e" },
-  fieldError: { color: "#a13e32", fontSize: 12 },
-  errorNotice: {
-    color: "#8b3329",
-    backgroundColor: "#f5e4df",
-    borderRadius: 9,
-    padding: 12,
+    color: theme.colors.ink,
+    backgroundColor: theme.colors.surface,
     fontSize: 13,
-    lineHeight: 19,
+  },
+  inputError: { borderColor: theme.colors.danger },
+  fieldError: { color: theme.colors.danger, fontSize: 11 },
+  errorNotice: {
+    color: theme.colors.danger,
+    backgroundColor: theme.colors.dangerSoft,
+    borderRadius: 5,
+    padding: 11,
+    fontSize: 12,
+    lineHeight: 18,
   },
   primaryButton: {
     minHeight: 50,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 10,
-    backgroundColor: "#536b51",
+    borderRadius: 5,
+    backgroundColor: theme.colors.accent,
     paddingHorizontal: 18,
     marginTop: 4,
   },
   disabledButton: { opacity: 0.55 },
-  primaryButtonText: { color: "#fffdf8", fontSize: 15, fontWeight: "700" },
-  switchText: { color: "#78664f", fontSize: 13, textAlign: "center" },
-  link: { color: "#536b51", fontWeight: "800" },
+  primaryButtonText: { color: theme.colors.white, fontSize: 13, fontWeight: "700" },
+  switchText: { color: theme.colors.body, fontSize: 12, textAlign: "center" },
+  link: { color: theme.colors.accent, fontWeight: "700" },
   backButton: { alignSelf: "center", paddingVertical: 4 },
-  backButtonText: { color: "#897b68", fontSize: 12, fontWeight: "600" },
+  backButtonText: { color: theme.colors.muted, fontSize: 11, fontWeight: "600" },
 });

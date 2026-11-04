@@ -1,3 +1,4 @@
+import { theme } from "@/theme";
 import axios from "axios";
 import { router, type Href } from "expo-router";
 import {
@@ -38,7 +39,7 @@ export default function CarrinhoScreen() {
   if (!restaurado) {
     return (
       <View style={styles.state}>
-        <ActivityIndicator size="large" color="#536b51" />
+        <ActivityIndicator size="large" color={theme.colors.accent} />
         <Text style={styles.stateText}>Restaurando seu carrinho…</Text>
       </View>
     );
@@ -264,7 +265,7 @@ export default function CarrinhoScreen() {
               ]}
             >
               {checkoutEmAndamento ? (
-                <ActivityIndicator size="small" color="#fffdf8" />
+                <ActivityIndicator size="small" color={theme.colors.surface} />
               ) : (
                 <Text style={styles.primaryButtonText}>
                   {usuarioAtual.isFetching ? "Verificando sessão…" : "Finalizar compra"}
@@ -336,10 +337,10 @@ function formatarData(valor: string): string {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#f5f1e8" },
+  screen: { flex: 1, backgroundColor: theme.colors.canvas },
   container: { alignItems: "center", padding: 20, paddingBottom: 44 },
   content: { width: "100%", maxWidth: 1040 },
-  eyebrow: { color: "#9a684c", fontSize: 10, fontWeight: "800", letterSpacing: 1.5 },
+  eyebrow: { color: theme.colors.accent, fontSize: 10, fontWeight: "800", letterSpacing: 1.5 },
   heading: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -349,30 +350,30 @@ const styles = StyleSheet.create({
     marginTop: 9,
     marginBottom: 22,
   },
-  title: { color: "#493b2a", fontSize: 28, fontWeight: "800" },
-  bodyText: { marginTop: 5, color: "#78664f", fontSize: 14, lineHeight: 21 },
+  title: { color: theme.colors.ink, fontFamily: theme.fonts.serif, fontSize: 31, fontWeight: "400" },
+  bodyText: { marginTop: 5, color: theme.colors.body, fontSize: 14, lineHeight: 21 },
   continueLink: { paddingVertical: 8 },
-  continueLinkText: { color: "#536b51", fontSize: 13, fontWeight: "700", textDecorationLine: "underline" },
+  continueLinkText: { color: theme.colors.accent, fontSize: 13, fontWeight: "700", textDecorationLine: "underline" },
   layout: { flexDirection: "row", flexWrap: "wrap", alignItems: "flex-start", gap: 18 },
-  itemsList: { flex: 1, minWidth: 300, gap: 13 },
+  itemsList: { flex: 1, minWidth: 260, gap: 13 },
   bookCard: {
     flexDirection: "row",
     alignItems: "center",
     gap: 15,
     padding: 15,
     borderWidth: 1,
-    borderColor: "#e7dfd2",
-    borderRadius: 14,
-    backgroundColor: "#fffdf8",
+    borderColor: theme.colors.border,
+    borderRadius: 5,
+    backgroundColor: theme.colors.surface,
   },
-  cover: { width: 82, height: 114, borderRadius: 5, backgroundColor: "#e9e0d1" },
-  coverPlaceholder: { alignItems: "center", justifyContent: "center", padding: 8, backgroundColor: "#536b51" },
-  placeholderTitle: { color: "#fff8eb", fontSize: 11, fontWeight: "800", textAlign: "center" },
-  placeholderMark: { marginTop: 7, color: "#f4e8d4", fontSize: 6, fontWeight: "700", letterSpacing: 0.4 },
+  cover: { width: 82, height: 114, borderRadius: 5, backgroundColor: theme.colors.surfaceSoft },
+  coverPlaceholder: { alignItems: "center", justifyContent: "center", padding: 8, backgroundColor: theme.colors.accent },
+  placeholderTitle: { color: theme.colors.surface, fontSize: 11, fontWeight: "800", textAlign: "center" },
+  placeholderMark: { marginTop: 7, color: theme.colors.accentSoft, fontSize: 6, fontWeight: "700", letterSpacing: 0.4 },
   bookInfo: { flex: 1, minWidth: 0 },
-  bookTitle: { color: "#493b2a", fontSize: 16, lineHeight: 21, fontWeight: "700" },
-  seller: { marginTop: 4, color: "#897b68", fontSize: 12 },
-  unitPrice: { marginTop: 6, color: "#536b51", fontSize: 13, fontWeight: "600" },
+  bookTitle: { color: theme.colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "700" },
+  seller: { marginTop: 4, color: theme.colors.muted, fontSize: 12 },
+  unitPrice: { marginTop: 6, color: theme.colors.accent, fontSize: 13, fontWeight: "600" },
   itemFooter: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 12, marginTop: 12 },
   quantityControls: { flexDirection: "row", alignItems: "center", gap: 9 },
   quantityButton: {
@@ -381,66 +382,66 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "#c9d2c3",
+    borderColor: theme.colors.borderStrong,
     borderRadius: 7,
   },
-  quantityButtonText: { color: "#536b51", fontSize: 19, fontWeight: "700" },
-  quantityValue: { minWidth: 18, color: "#493b2a", fontSize: 14, fontWeight: "700", textAlign: "center" },
+  quantityButtonText: { color: theme.colors.accent, fontSize: 19, fontWeight: "700" },
+  quantityValue: { minWidth: 18, color: theme.colors.ink, fontSize: 14, fontWeight: "700", textAlign: "center" },
   subtotalBlock: { alignItems: "flex-end" },
-  subtotalLabel: { color: "#897b68", fontSize: 10 },
-  subtotal: { marginTop: 2, color: "#493b2a", fontSize: 15, fontWeight: "800" },
+  subtotalLabel: { color: theme.colors.muted, fontSize: 10 },
+  subtotal: { marginTop: 2, color: theme.colors.ink, fontSize: 15, fontWeight: "800" },
   removeButton: { alignSelf: "flex-start", marginTop: 9, paddingVertical: 3 },
-  removeButtonText: { color: "#9b463b", fontSize: 12, fontWeight: "700", textDecorationLine: "underline" },
+  removeButtonText: { color: theme.colors.danger, fontSize: 12, fontWeight: "700", textDecorationLine: "underline" },
   disabledControl: { opacity: 0.4 },
   summaryCard: {
     width: 285,
     maxWidth: "100%",
     padding: 19,
     borderWidth: 1,
-    borderColor: "#e7dfd2",
-    borderRadius: 14,
-    backgroundColor: "#fffdf8",
+    borderColor: theme.colors.border,
+    borderRadius: 5,
+    backgroundColor: theme.colors.surface,
   },
-  summaryTitle: { marginBottom: 16, color: "#493b2a", fontSize: 17, fontWeight: "700" },
+  summaryTitle: { marginBottom: 16, color: theme.colors.ink, fontSize: 17, fontWeight: "700" },
   summaryRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
-  summaryLabel: { color: "#78664f", fontSize: 13 },
-  summaryValue: { color: "#493b2a", fontSize: 13, fontWeight: "600" },
-  summaryDivider: { height: 1, marginVertical: 14, backgroundColor: "#eee7dc" },
-  totalLabel: { color: "#493b2a", fontSize: 15, fontWeight: "700" },
-  totalValue: { color: "#536b51", fontSize: 19, fontWeight: "800" },
+  summaryLabel: { color: theme.colors.body, fontSize: 13 },
+  summaryValue: { color: theme.colors.ink, fontSize: 13, fontWeight: "600" },
+  summaryDivider: { height: 1, marginVertical: 14, backgroundColor: theme.colors.border },
+  totalLabel: { color: theme.colors.ink, fontSize: 15, fontWeight: "700" },
+  totalValue: { color: theme.colors.accent, fontSize: 19, fontWeight: "800" },
   primaryButton: {
     minHeight: 44,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 19,
     paddingHorizontal: 16,
-    borderRadius: 9,
-    backgroundColor: "#536b51",
+    borderRadius: 5,
+    backgroundColor: theme.colors.accent,
   },
-  primaryButtonText: { color: "#fffdf8", fontSize: 13, fontWeight: "700", textAlign: "center" },
-  checkoutDisabled: { backgroundColor: "#9a9f92" },
-  comingSoon: { marginTop: 9, color: "#897b68", fontSize: 11, lineHeight: 16, textAlign: "center" },
-  errorMessage: { marginBottom: 13, color: "#9b463b", fontSize: 13, lineHeight: 19 },
+  primaryButtonText: { color: theme.colors.surface, fontSize: 13, fontWeight: "700", textAlign: "center" },
+  checkoutDisabled: { backgroundColor: theme.colors.muted },
+  comingSoon: { marginTop: 9, color: theme.colors.muted, fontSize: 11, lineHeight: 16, textAlign: "center" },
+  errorMessage: { marginBottom: 13, color: theme.colors.danger, fontSize: 13, lineHeight: 19 },
   modalBackdrop: { flex: 1, alignItems: "center", justifyContent: "center", padding: 22, backgroundColor: "rgba(40,32,23,0.55)" },
-  confirmationCard: { width: "100%", maxWidth: 440, padding: 25, borderRadius: 16, backgroundColor: "#fffdf8" },
-  confirmationEyebrow: { color: "#9a684c", fontSize: 10, fontWeight: "800", letterSpacing: 1.2 },
-  confirmationTitle: { marginTop: 8, color: "#493b2a", fontSize: 24, fontWeight: "800" },
-  confirmationInfo: { marginTop: 8, color: "#78664f", fontSize: 14 },
-  confirmationTotalRow: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 20, paddingTop: 15, borderTopWidth: 1, borderTopColor: "#eee7dc" },
-  confirmationTotalLabel: { color: "#493b2a", fontSize: 14, fontWeight: "700" },
-  confirmationTotal: { color: "#536b51", fontSize: 21, fontWeight: "800" },
-  confirmationNote: { marginTop: 12, color: "#897b68", fontSize: 12, lineHeight: 18 },
+  confirmationCard: { width: "100%", maxWidth: 440, padding: 25, borderRadius: 8, backgroundColor: theme.colors.surface },
+  confirmationEyebrow: { color: theme.colors.accent, fontSize: 10, fontWeight: "800", letterSpacing: 1.2 },
+  confirmationTitle: { marginTop: 8, color: theme.colors.ink, fontFamily: theme.fonts.serif, fontSize: 27, fontWeight: "400" },
+  confirmationInfo: { marginTop: 8, color: theme.colors.body, fontSize: 14 },
+  confirmationTotalRow: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 20, paddingTop: 15, borderTopWidth: 1, borderTopColor: theme.colors.border },
+  confirmationTotalLabel: { color: theme.colors.ink, fontSize: 14, fontWeight: "700" },
+  confirmationTotal: { color: theme.colors.accent, fontSize: 21, fontWeight: "800" },
+  confirmationNote: { marginTop: 12, color: theme.colors.muted, fontSize: 12, lineHeight: 18 },
   emptyCard: {
     alignItems: "center",
     gap: 12,
     marginTop: 25,
     padding: 34,
     borderWidth: 1,
-    borderColor: "#e7dfd2",
-    borderRadius: 16,
-    backgroundColor: "#fffdf8",
+    borderColor: theme.colors.border,
+    borderRadius: 8,
+    backgroundColor: theme.colors.surface,
   },
-  emptyIcon: { color: "#9a684c", fontSize: 35 },
-  state: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12, padding: 24, backgroundColor: "#f5f1e8" },
-  stateText: { color: "#78664f", fontSize: 14, textAlign: "center" },
+  emptyIcon: { color: theme.colors.accent, fontSize: 35 },
+  state: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12, padding: 24, backgroundColor: theme.colors.canvas },
+  stateText: { color: theme.colors.body, fontSize: 14, textAlign: "center" },
 });

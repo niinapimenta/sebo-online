@@ -1,3 +1,4 @@
+import { theme } from "@/theme";
 import axios from "axios";
 import { router, type Href } from "expo-router";
 import {
@@ -8,6 +9,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { useCarrinho } from "@/features/carrinho/context/CarrinhoProvider";
@@ -19,6 +21,7 @@ import { podeComprarDoVendedor } from "../utils/compraLivro";
 const apiConfigurada = Boolean(process.env.EXPO_PUBLIC_API_URL?.trim());
 
 export default function LivroDetailsScreen({ id }: { id: string }) {
+  const { width } = useWindowDimensions();
   const livroQuery = useLivro(id);
   const usuarioQuery = useCurrentUser();
   const { carrinho, restaurado, adicionarLivro } = useCarrinho();
@@ -60,7 +63,7 @@ export default function LivroDetailsScreen({ id }: { id: string }) {
   if (livroQuery.isPending) {
     return (
       <View style={styles.state}>
-        <ActivityIndicator size="large" color="#536b51" />
+        <ActivityIndicator size="large" color={theme.colors.accent} />
         <Text style={styles.stateMessage}>Carregando detalhes do livro…</Text>
       </View>
     );
@@ -169,12 +172,12 @@ export default function LivroDetailsScreen({ id }: { id: string }) {
           {livro.foto ? (
             <Image
               source={{ uri: livro.foto }}
-              style={styles.cover}
+              style={[styles.cover, width < 420 && styles.coverCompact]}
               resizeMode="cover"
               accessibilityLabel={`Capa de ${livro.titulo}`}
             />
           ) : (
-            <View style={[styles.cover, styles.coverPlaceholder]}>
+              <View style={[styles.cover, width < 420 && styles.coverCompact, styles.coverPlaceholder]}>
               <Text style={styles.placeholderTitle} numberOfLines={5}>
                 {livro.titulo}
               </Text>
@@ -182,7 +185,7 @@ export default function LivroDetailsScreen({ id }: { id: string }) {
             </View>
           )}
 
-          <View style={styles.details}>
+          <View style={[styles.details, width < 420 && styles.detailsCompact]}>
             <Text style={styles.eyebrow}>DETALHES DO LIVRO</Text>
             <Text style={styles.title}>{livro.titulo}</Text>
             <Text style={styles.author}>por {livro.autor}</Text>
@@ -262,7 +265,7 @@ export default function LivroDetailsScreen({ id }: { id: string }) {
                 activeOpacity={0.82}
               >
                 {adicionando ? (
-                  <ActivityIndicator size="small" color="#fffdf8" />
+                  <ActivityIndicator size="small" color={theme.colors.surface} />
                 ) : (
                   <Text style={styles.addCartButtonText}>
                     {proprioAnuncio
@@ -402,50 +405,52 @@ function voltar() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#f5f1e8" },
+  screen: { flex: 1, backgroundColor: theme.colors.canvas },
   container: { alignItems: "center", padding: 20, paddingBottom: 40 },
   content: { width: "100%", maxWidth: 900 },
   backButton: { alignSelf: "flex-start", paddingVertical: 8, paddingHorizontal: 2 },
-  backButtonText: { color: "#536b51", fontSize: 14, fontWeight: "700" },
+  backButtonText: { color: theme.colors.accent, fontSize: 14, fontWeight: "700" },
   card: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 28,
     padding: 24,
     borderWidth: 1,
-    borderColor: "#e7dfd2",
-    borderRadius: 16,
-    backgroundColor: "#fffdf8",
+    borderColor: theme.colors.border,
+    borderRadius: 8,
+    backgroundColor: theme.colors.surface,
   },
   cover: {
     width: 240,
     height: 340,
     borderRadius: 7,
-    backgroundColor: "#e9e0d1",
+    backgroundColor: theme.colors.surfaceSoft,
   },
+  coverCompact: { width: 170, height: 242 },
   coverPlaceholder: {
     alignItems: "center",
     justifyContent: "center",
     padding: 22,
-    backgroundColor: "#536b51",
+    backgroundColor: theme.colors.accent,
   },
   placeholderTitle: {
-    color: "#fff8eb",
+    color: theme.colors.surface,
     fontSize: 23,
     fontWeight: "800",
     textAlign: "center",
   },
   placeholderMark: {
     marginTop: 18,
-    color: "#f4e8d4",
+    color: theme.colors.accentSoft,
     fontSize: 10,
     fontWeight: "700",
     letterSpacing: 1,
   },
   details: { flex: 1, minWidth: 260, gap: 12 },
-  eyebrow: { color: "#9a684c", fontSize: 10, fontWeight: "800", letterSpacing: 1.7 },
-  title: { color: "#493b2a", fontSize: 30, lineHeight: 37, fontWeight: "800" },
-  author: { color: "#817561", fontSize: 16 },
+  detailsCompact: { minWidth: 0, flexBasis: "100%" },
+  eyebrow: { color: theme.colors.accent, fontSize: 10, fontWeight: "800", letterSpacing: 1.7 },
+  title: { color: theme.colors.ink, fontFamily: theme.fonts.serif, fontSize: 31, lineHeight: 38, fontWeight: "400" },
+  author: { color: theme.colors.body, fontSize: 16 },
   pricePanel: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -453,12 +458,12 @@ const styles = StyleSheet.create({
     gap: 12,
     marginTop: 5,
     padding: 15,
-    borderRadius: 10,
-    backgroundColor: "#f1e8d9",
+    borderRadius: 6,
+    backgroundColor: theme.colors.surfaceSoft,
   },
-  price: { color: "#536b51", fontSize: 23, fontWeight: "800" },
+  price: { color: theme.colors.accent, fontSize: 23, fontWeight: "800" },
   cartSection: { gap: 10, marginTop: 2 },
-  cartLabel: { color: "#493b2a", fontSize: 13, fontWeight: "700" },
+  cartLabel: { color: theme.colors.ink, fontSize: 13, fontWeight: "700" },
   cartControls: { flexDirection: "row", alignItems: "center", gap: 10, flexWrap: "wrap" },
   quantityButton: {
     width: 36,
@@ -466,28 +471,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "#c9d2c3",
+    borderColor: theme.colors.borderStrong,
     borderRadius: 8,
-    backgroundColor: "#fffdf8",
+    backgroundColor: theme.colors.surface,
   },
-  quantityButtonText: { color: "#536b51", fontSize: 20, fontWeight: "700" },
-  quantityValue: { minWidth: 20, color: "#493b2a", fontSize: 15, fontWeight: "700", textAlign: "center" },
-  remainingStock: { color: "#897b68", fontSize: 11, flexShrink: 1 },
+  quantityButtonText: { color: theme.colors.accent, fontSize: 20, fontWeight: "700" },
+  quantityValue: { minWidth: 20, color: theme.colors.ink, fontSize: 15, fontWeight: "700", textAlign: "center" },
+  remainingStock: { color: theme.colors.muted, fontSize: 11, flexShrink: 1 },
   addCartButton: {
     minHeight: 44,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 16,
-    borderRadius: 9,
-    backgroundColor: "#536b51",
+    borderRadius: 5,
+    backgroundColor: theme.colors.accent,
   },
-  addCartButtonText: { color: "#fffdf8", fontSize: 14, fontWeight: "700" },
+  addCartButtonText: { color: theme.colors.surface, fontSize: 14, fontWeight: "700" },
   cartMessage: { fontSize: 12, lineHeight: 18 },
-  cartMessageSuccess: { color: "#536b51" },
-  cartMessageError: { color: "#9b463b" },
+  cartMessageSuccess: { color: theme.colors.accent },
+  cartMessageError: { color: theme.colors.danger },
   controlDisabled: { opacity: 0.45 },
-  stock: { color: "#536b51", fontSize: 12, fontWeight: "700" },
-  stockUnavailable: { color: "#9b463b" },
+  stock: { color: theme.colors.accent, fontSize: 12, fontWeight: "700" },
+  stockUnavailable: { color: theme.colors.danger },
   infoList: { gap: 9, marginTop: 5 },
   infoRow: {
     flexDirection: "row",
@@ -496,26 +501,26 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingBottom: 8,
     borderBottomWidth: 1,
-    borderBottomColor: "#eee7dc",
+    borderBottomColor: theme.colors.border,
   },
-  infoLabel: { color: "#897b68", fontSize: 13 },
-  infoValue: { color: "#493b2a", fontSize: 13, fontWeight: "600" },
-  sellerLink: { color: "#536b51", textDecorationLine: "underline" },
+  infoLabel: { color: theme.colors.muted, fontSize: 13 },
+  infoValue: { color: theme.colors.ink, fontSize: 13, fontWeight: "600" },
+  sellerLink: { color: theme.colors.accent, textDecorationLine: "underline" },
   descriptionSection: { gap: 7, marginTop: 5 },
-  descriptionTitle: { color: "#493b2a", fontSize: 16, fontWeight: "700" },
-  description: { color: "#78664f", fontSize: 14, lineHeight: 21 },
+  descriptionTitle: { color: theme.colors.ink, fontSize: 16, fontWeight: "700" },
+  description: { color: theme.colors.body, fontSize: 14, lineHeight: 21 },
   state: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     gap: 13,
     padding: 24,
-    backgroundColor: "#f5f1e8",
+    backgroundColor: theme.colors.canvas,
   },
-  stateTitle: { color: "#493b2a", fontSize: 20, fontWeight: "700", textAlign: "center" },
+  stateTitle: { color: theme.colors.ink, fontSize: 20, fontWeight: "700", textAlign: "center" },
   stateMessage: {
     maxWidth: 520,
-    color: "#78664f",
+    color: theme.colors.body,
     fontSize: 14,
     lineHeight: 21,
     textAlign: "center",
@@ -525,8 +530,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 4,
     paddingHorizontal: 16,
-    borderRadius: 9,
-    backgroundColor: "#536b51",
+    borderRadius: 5,
+    backgroundColor: theme.colors.accent,
   },
-  primaryButtonText: { color: "#fffdf8", fontSize: 13, fontWeight: "700" },
+  primaryButtonText: { color: theme.colors.surface, fontSize: 13, fontWeight: "700" },
 });

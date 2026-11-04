@@ -1,3 +1,4 @@
+import { theme } from "@/theme";
 import {
   CameraView,
   useCameraPermissions,
@@ -60,7 +61,7 @@ export default function FotoLivroCamera({
   if (!permission) {
     return (
       <View style={styles.stateCard}>
-        <ActivityIndicator size="large" color="#536b51" />
+        <ActivityIndicator size="large" color={theme.colors.accent} />
         <Text style={styles.message}>Verificando permissão da câmera…</Text>
         <BotaoSecundario label="Voltar" onPress={onCancel} />
       </View>
@@ -182,7 +183,7 @@ export default function FotoLivroCamera({
 
       {!fotoCapturada && !cameraReady ? (
         <View style={styles.loading}>
-          <ActivityIndicator size="small" color="#536b51" />
+          <ActivityIndicator size="small" color={theme.colors.accent} />
           <Text style={styles.message}>Preparando a câmera…</Text>
         </View>
       ) : null}
@@ -212,7 +213,7 @@ export default function FotoLivroCamera({
           activeOpacity={0.82}
         >
           {capturing ? (
-            <ActivityIndicator color="#fffdf8" />
+            <ActivityIndicator color={theme.colors.surface} />
           ) : (
             <Text style={styles.primaryButtonText}>Tirar foto</Text>
           )}
@@ -250,30 +251,30 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     gap: 16,
     padding: 20,
-    borderRadius: 16,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#e7dfd2",
-    backgroundColor: "#fffdf8",
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surface,
   },
   stateCard: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     gap: 16,
-    backgroundColor: "#f5f1e8",
+    backgroundColor: theme.colors.canvas,
     padding: 24,
   },
   heading: {
     gap: 6,
   },
   title: {
-    color: "#493b2a",
+    color: theme.colors.ink,
     fontSize: 20,
     fontWeight: "700",
     textAlign: "center",
   },
   message: {
-    color: "#78664f",
+    color: theme.colors.body,
     fontSize: 14,
     lineHeight: 21,
     textAlign: "center",
@@ -282,8 +283,8 @@ const styles = StyleSheet.create({
     width: "100%",
     aspectRatio: 3 / 4,
     overflow: "hidden",
-    borderRadius: 12,
-    backgroundColor: "#e9e0d1",
+    borderRadius: 8,
+    backgroundColor: theme.colors.surfaceSoft,
   },
   image: {
     width: "100%",
@@ -302,12 +303,12 @@ const styles = StyleSheet.create({
     minHeight: 48,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 9,
-    backgroundColor: "#536b51",
+    borderRadius: 5,
+    backgroundColor: theme.colors.accent,
     paddingHorizontal: 16,
   },
   primaryButtonText: {
-    color: "#fffdf8",
+    color: theme.colors.surface,
     fontSize: 14,
     fontWeight: "700",
     textAlign: "center",
@@ -317,12 +318,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "#c9d2c3",
-    borderRadius: 9,
+    borderColor: theme.colors.borderStrong,
+    borderRadius: 5,
     paddingHorizontal: 14,
   },
   secondaryButtonText: {
-    color: "#536b51",
+    color: theme.colors.accent,
     fontSize: 13,
     fontWeight: "700",
     textAlign: "center",
@@ -331,9 +332,9 @@ const styles = StyleSheet.create({
     opacity: 0.55,
   },
   error: {
-    color: "#8b3329",
-    backgroundColor: "#f5e4df",
-    borderRadius: 9,
+    color: theme.colors.danger,
+    backgroundColor: theme.colors.dangerSoft,
+    borderRadius: 5,
     fontSize: 13,
     lineHeight: 19,
     padding: 12,

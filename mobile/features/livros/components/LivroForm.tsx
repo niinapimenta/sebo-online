@@ -1,3 +1,4 @@
+import { theme } from "@/theme";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Controller,
@@ -65,7 +66,7 @@ function CampoTexto({
               fieldState.error && styles.inputError,
             ]}
             placeholder={placeholder}
-            placeholderTextColor="#a39887"
+            placeholderTextColor={theme.colors.muted}
             value={typeof value === "string" ? value : ""}
             onBlur={onBlur}
             onChangeText={onChange}
@@ -265,7 +266,7 @@ export default function LivroForm({
           activeOpacity={0.82}
         >
           {isSubmitting ? (
-            <ActivityIndicator color="#fffdf8" />
+            <ActivityIndicator color={theme.colors.surface} />
           ) : (
             <Text style={styles.submitButtonText}>{submitLabel}</Text>
           )}
@@ -278,7 +279,7 @@ export default function LivroForm({
 const styles = StyleSheet.create({
   scroll: {
     flex: 1,
-    backgroundColor: "#f5f1e8",
+    backgroundColor: theme.colors.canvas,
   },
   container: {
     alignItems: "center",
@@ -290,18 +291,19 @@ const styles = StyleSheet.create({
     maxWidth: 680,
     gap: 16,
     padding: 22,
-    borderRadius: 16,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#e7dfd2",
-    backgroundColor: "#fffdf8",
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surface,
   },
   formTitle: {
-    color: "#493b2a",
-    fontSize: 21,
-    fontWeight: "700",
+    color: theme.colors.ink,
+    fontFamily: theme.fonts.serif,
+    fontSize: 25,
+    fontWeight: "400",
   },
   formHint: {
-    color: "#897b68",
+    color: theme.colors.muted,
     fontSize: 12,
     marginTop: -10,
   },
@@ -312,11 +314,11 @@ const styles = StyleSheet.create({
     width: 180,
     height: 240,
     alignSelf: "center",
-    borderRadius: 9,
-    backgroundColor: "#e9e0d1",
+    borderRadius: 5,
+    backgroundColor: theme.colors.surfaceSoft,
   },
   photoHint: {
-    color: "#897b68",
+    color: theme.colors.muted,
     fontSize: 12,
     lineHeight: 18,
     textAlign: "center",
@@ -331,12 +333,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 9,
-    backgroundColor: "#536b51",
+    borderRadius: 5,
+    backgroundColor: theme.colors.accent,
     paddingHorizontal: 14,
   },
   photoButtonText: {
-    color: "#fffdf8",
+    color: theme.colors.surface,
     fontSize: 13,
     fontWeight: "700",
     textAlign: "center",
@@ -346,12 +348,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "#e1c5bf",
-    borderRadius: 9,
+    borderColor: theme.colors.borderStrong,
+    borderRadius: 5,
     paddingHorizontal: 14,
   },
   removePhotoButtonText: {
-    color: "#9b463b",
+    color: theme.colors.danger,
     fontSize: 13,
     fontWeight: "700",
     textAlign: "center",
@@ -361,19 +363,19 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   label: {
-    color: "#5d4e3d",
+    color: theme.colors.ink,
     fontSize: 13,
     fontWeight: "600",
   },
   input: {
     minHeight: 46,
     borderWidth: 1,
-    borderColor: "#d9d0c2",
-    borderRadius: 9,
+    borderColor: theme.colors.borderStrong,
+    borderRadius: 5,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    color: "#493b2a",
-    backgroundColor: "#fffefa",
+    color: theme.colors.ink,
+    backgroundColor: theme.colors.surface,
     fontSize: 15,
   },
   multilineInput: {
@@ -381,31 +383,33 @@ const styles = StyleSheet.create({
     paddingTop: 12,
   },
   inputError: {
-    borderColor: "#b34e3e",
+    borderColor: theme.colors.danger,
   },
   errorText: {
-    color: "#a13e32",
+    color: theme.colors.danger,
     fontSize: 12,
   },
   row: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 12,
   },
   halfField: {
     flex: 1,
+    minWidth: 210,
   },
   connectionNotice: {
-    color: "#705b43",
-    backgroundColor: "#f1e8d9",
-    borderRadius: 9,
+    color: theme.colors.body,
+    backgroundColor: theme.colors.surfaceSoft,
+    borderRadius: 5,
     fontSize: 13,
     lineHeight: 19,
     padding: 12,
   },
   submitError: {
-    color: "#8b3329",
-    backgroundColor: "#f5e4df",
-    borderRadius: 9,
+    color: theme.colors.danger,
+    backgroundColor: theme.colors.dangerSoft,
+    borderRadius: 5,
     fontSize: 13,
     lineHeight: 19,
     padding: 12,
@@ -414,8 +418,8 @@ const styles = StyleSheet.create({
     minHeight: 50,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 10,
-    backgroundColor: "#536b51",
+    borderRadius: 6,
+    backgroundColor: theme.colors.accent,
     paddingHorizontal: 18,
     marginTop: 2,
   },
@@ -423,7 +427,7 @@ const styles = StyleSheet.create({
     opacity: 0.55,
   },
   submitButtonText: {
-    color: "#fffdf8",
+    color: theme.colors.surface,
     fontSize: 15,
     fontWeight: "700",
   },

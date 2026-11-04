@@ -1,3 +1,4 @@
+import { theme } from "@/theme";
 import { Redirect, type Href } from "expo-router";
 import type { ReactNode } from "react";
 import {
@@ -30,7 +31,7 @@ export default function AuthGate({
   if (currentUser.isPending && currentUser.data === undefined) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color="#536b51" />
+        <ActivityIndicator size="large" color={theme.colors.accent} />
         <Text style={styles.message}>Verificando sua sessão…</Text>
       </View>
     );
@@ -60,7 +61,7 @@ export default function AuthGate({
   if (currentUser.data === undefined) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color="#536b51" />
+        <ActivityIndicator size="large" color={theme.colors.accent} />
         <Text style={styles.message}>Verificando sua sessão…</Text>
       </View>
     );
@@ -101,12 +102,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 14,
-    backgroundColor: "#f5f1e8",
+    backgroundColor: theme.colors.canvas,
     padding: 24,
   },
   message: {
     maxWidth: 480,
-    color: "#78664f",
+    color: theme.colors.body,
     fontSize: 14,
     lineHeight: 21,
     textAlign: "center",
@@ -115,9 +116,9 @@ const styles = StyleSheet.create({
     minHeight: 42,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 9,
-    backgroundColor: "#536b51",
+    borderRadius: 5,
+    backgroundColor: theme.colors.accent,
     paddingHorizontal: 16,
   },
-  retryText: { color: "#fffdf8", fontSize: 14, fontWeight: "700" },
+  retryText: { color: theme.colors.surface, fontSize: 14, fontWeight: "700" },
 });

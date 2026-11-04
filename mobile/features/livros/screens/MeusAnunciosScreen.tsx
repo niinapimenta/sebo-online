@@ -1,3 +1,4 @@
+import { theme } from "@/theme";
 import { router, type Href } from "expo-router";
 import { useRef, useState } from "react";
 import {
@@ -27,7 +28,7 @@ export default function MeusAnunciosScreen() {
   if (usuario.isPending || usuario.isFetching || consulta.isPending) {
     return (
       <View style={styles.state}>
-        <ActivityIndicator size="large" color="#536b51" />
+        <ActivityIndicator size="large" color={theme.colors.accent} />
         <Text style={styles.stateText}>Carregando seus anúncios…</Text>
       </View>
     );
@@ -183,7 +184,7 @@ export default function MeusAnunciosScreen() {
                       activeOpacity={0.8}
                     >
                       {exclusao.isPending && confirmandoId === livro.id ? (
-                        <ActivityIndicator size="small" color="#9b463b" />
+                        <ActivityIndicator size="small" color={theme.colors.danger} />
                       ) : (
                         <Text style={styles.deleteButtonText}>Excluir</Text>
                       )}
@@ -204,40 +205,40 @@ function formatarMoeda(valor: number): string {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#f5f1e8" },
+  screen: { flex: 1, backgroundColor: theme.colors.canvas },
   container: { alignItems: "center", padding: 20, paddingBottom: 42 },
   content: { width: "100%", maxWidth: 900 },
-  eyebrow: { color: "#9a684c", fontSize: 10, fontWeight: "800", letterSpacing: 1.5 },
+  eyebrow: { color: theme.colors.accent, fontSize: 10, fontWeight: "800", letterSpacing: 1.5 },
   heading: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 14, marginTop: 8, marginBottom: 20 },
-  title: { color: "#493b2a", fontSize: 27, fontWeight: "800" },
-  subtitle: { marginTop: 6, color: "#78664f", fontSize: 14, lineHeight: 21 },
-  newButton: { minHeight: 38, justifyContent: "center", paddingHorizontal: 12, borderWidth: 1, borderColor: "#c9d2c3", borderRadius: 8 },
-  newButtonText: { color: "#536b51", fontSize: 12, fontWeight: "700" },
+  title: { color: theme.colors.ink, fontFamily: theme.fonts.serif, fontSize: 31, fontWeight: "400" },
+  subtitle: { marginTop: 6, color: theme.colors.body, fontSize: 14, lineHeight: 21 },
+  newButton: { minHeight: 38, justifyContent: "center", paddingHorizontal: 12, borderWidth: 1, borderColor: theme.colors.borderStrong, borderRadius: 8 },
+  newButtonText: { color: theme.colors.accent, fontSize: 12, fontWeight: "700" },
   list: { gap: 13 },
-  bookCard: { flexDirection: "row", alignItems: "center", gap: 15, padding: 15, borderWidth: 1, borderColor: "#e7dfd2", borderRadius: 14, backgroundColor: "#fffdf8" },
-  cover: { width: 82, height: 114, borderRadius: 5, backgroundColor: "#e9e0d1" },
-  coverPlaceholder: { alignItems: "center", justifyContent: "center", padding: 8, backgroundColor: "#536b51" },
-  placeholderTitle: { color: "#fff8eb", fontSize: 11, fontWeight: "800", textAlign: "center" },
-  placeholderMark: { marginTop: 7, color: "#f4e8d4", fontSize: 6, fontWeight: "700", letterSpacing: 0.4 },
+  bookCard: { flexDirection: "row", alignItems: "center", gap: 15, padding: 15, borderWidth: 1, borderColor: theme.colors.border, borderRadius: 5, backgroundColor: theme.colors.surface },
+  cover: { width: 82, height: 114, borderRadius: 5, backgroundColor: theme.colors.surfaceSoft },
+  coverPlaceholder: { alignItems: "center", justifyContent: "center", padding: 8, backgroundColor: theme.colors.accent },
+  placeholderTitle: { color: theme.colors.surface, fontSize: 11, fontWeight: "800", textAlign: "center" },
+  placeholderMark: { marginTop: 7, color: theme.colors.accentSoft, fontSize: 6, fontWeight: "700", letterSpacing: 0.4 },
   bookInfo: { flex: 1, minWidth: 0 },
-  bookTitle: { color: "#493b2a", fontSize: 16, fontWeight: "700", textDecorationLine: "underline" },
-  author: { marginTop: 4, color: "#817561", fontSize: 13 },
+  bookTitle: { color: theme.colors.ink, fontSize: 16, fontWeight: "700", textDecorationLine: "underline" },
+  author: { marginTop: 4, color: theme.colors.body, fontSize: 13 },
   bookMeta: { flexDirection: "row", flexWrap: "wrap", alignItems: "baseline", gap: 12, marginTop: 9 },
-  price: { color: "#536b51", fontSize: 16, fontWeight: "800" },
-  stock: { color: "#897b68", fontSize: 11 },
+  price: { color: theme.colors.accent, fontSize: 16, fontWeight: "800" },
+  stock: { color: theme.colors.muted, fontSize: 11 },
   actions: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 10 },
-  editButton: { minHeight: 31, justifyContent: "center", paddingHorizontal: 11, borderWidth: 1, borderColor: "#c9d2c3", borderRadius: 7 },
-  editButtonText: { color: "#536b51", fontSize: 12, fontWeight: "700" },
-  deleteButton: { minWidth: 60, minHeight: 31, alignItems: "center", justifyContent: "center", paddingHorizontal: 10, borderWidth: 1, borderColor: "#e1c5bf", borderRadius: 7 },
-  deleteButtonText: { color: "#9b463b", fontSize: 12, fontWeight: "700" },
+  editButton: { minHeight: 31, justifyContent: "center", paddingHorizontal: 11, borderWidth: 1, borderColor: theme.colors.borderStrong, borderRadius: 7 },
+  editButtonText: { color: theme.colors.accent, fontSize: 12, fontWeight: "700" },
+  deleteButton: { minWidth: 60, minHeight: 31, alignItems: "center", justifyContent: "center", paddingHorizontal: 10, borderWidth: 1, borderColor: theme.colors.borderStrong, borderRadius: 7 },
+  deleteButtonText: { color: theme.colors.danger, fontSize: 12, fontWeight: "700" },
   disabledButton: { opacity: 0.5 },
-  emptyCard: { alignItems: "center", gap: 10, marginTop: 8, padding: 26, borderWidth: 1, borderColor: "#e7dfd2", borderRadius: 14, backgroundColor: "#fffdf8" },
-  emptyTitle: { color: "#493b2a", fontSize: 17, fontWeight: "700", textAlign: "center" },
-  emptyText: { color: "#78664f", fontSize: 13, lineHeight: 19, textAlign: "center" },
-  primaryButton: { minHeight: 42, alignItems: "center", justifyContent: "center", marginTop: 4, paddingHorizontal: 16, borderRadius: 9, backgroundColor: "#536b51" },
-  primaryButtonText: { color: "#fffdf8", fontSize: 13, fontWeight: "700" },
-  errorNotice: { marginBottom: 14, color: "#9b463b", fontSize: 13, lineHeight: 19 },
-  state: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12, padding: 24, backgroundColor: "#f5f1e8" },
-  stateTitle: { color: "#493b2a", fontSize: 19, fontWeight: "700", textAlign: "center" },
-  stateText: { maxWidth: 500, color: "#78664f", fontSize: 14, lineHeight: 21, textAlign: "center" },
+  emptyCard: { alignItems: "center", gap: 10, marginTop: 8, padding: 26, borderWidth: 1, borderColor: theme.colors.border, borderRadius: 5, backgroundColor: theme.colors.surface },
+  emptyTitle: { color: theme.colors.ink, fontSize: 17, fontWeight: "700", textAlign: "center" },
+  emptyText: { color: theme.colors.body, fontSize: 13, lineHeight: 19, textAlign: "center" },
+  primaryButton: { minHeight: 42, alignItems: "center", justifyContent: "center", marginTop: 4, paddingHorizontal: 16, borderRadius: 5, backgroundColor: theme.colors.accent },
+  primaryButtonText: { color: theme.colors.surface, fontSize: 13, fontWeight: "700" },
+  errorNotice: { marginBottom: 14, color: theme.colors.danger, fontSize: 13, lineHeight: 19 },
+  state: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12, padding: 24, backgroundColor: theme.colors.canvas },
+  stateTitle: { color: theme.colors.ink, fontSize: 19, fontWeight: "700", textAlign: "center" },
+  stateText: { maxWidth: 500, color: theme.colors.body, fontSize: 14, lineHeight: 21, textAlign: "center" },
 });

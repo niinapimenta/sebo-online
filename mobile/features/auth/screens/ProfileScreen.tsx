@@ -1,3 +1,4 @@
+import { theme } from "@/theme";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router, type Href } from "expo-router";
 import { useEffect, useState } from "react";
@@ -15,6 +16,7 @@ import {
 } from "react-native";
 import { mensagemErroApi } from "@/services/apiError";
 import { useCurrentUser, authApiConfigurada } from "../hooks/useCurrentUser";
+import { useLogout } from "../hooks/useLogout";
 import { useUpdateProfile } from "../hooks/useUpdateProfile";
 import {
   ProfileUpdateSchema,
@@ -25,6 +27,7 @@ import {
 export default function ProfileScreen() {
   const usuarioAtual = useCurrentUser();
   const atualizacao = useUpdateProfile();
+  const saida = useLogout();
   const [salvo, setSalvo] = useState(false);
   const { control, handleSubmit, reset } = useForm<
     ProfileUpdateFormValues,
@@ -60,7 +63,7 @@ export default function ProfileScreen() {
   if (usuarioAtual.isPending || usuarioAtual.isFetching) {
     return (
       <View style={styles.state}>
-        <ActivityIndicator size="large" color="#536b51" />
+        <ActivityIndicator size="large" color={theme.colors.accent} />
         <Text style={styles.stateText}>Carregando seu perfil…</Text>
       </View>
     );
@@ -121,6 +124,25 @@ export default function ProfileScreen() {
             <Text style={styles.historyLinkText}>Consultar histórico de compras</Text>
           </TouchableOpacity>
 
+          {saida.isError ? (
+            <Text accessibilityRole="alert" style={styles.errorNotice}>
+              Não foi possível encerrar sua sessão. Você continua conectado; tente novamente.
+            </Text>
+          ) : null}
+          <TouchableOpacity
+            accessibilityRole="button"
+            disabled={saida.isPending}
+            onPress={() => saida.mutate()}
+            style={[styles.logoutButton, saida.isPending && styles.disabledButton]}
+            activeOpacity={0.82}
+          >
+            {saida.isPending ? (
+              <ActivityIndicator color={theme.colors.danger} />
+            ) : (
+              <Text style={styles.logoutButtonText}>Sair da conta</Text>
+            )}
+          </TouchableOpacity>
+
           {salvo ? (
             <Text accessibilityRole="status" style={styles.successNotice}>
               Perfil atualizado com sucesso.
@@ -146,7 +168,7 @@ export default function ProfileScreen() {
                   onBlur={field.onBlur}
                   onChangeText={field.onChange}
                   placeholder="Seu nome"
-                  placeholderTextColor="#a39887"
+                  placeholderTextColor={theme.colors.muted}
                   style={[styles.input, fieldState.error && styles.inputError]}
                   value={field.value}
                 />
@@ -172,7 +194,7 @@ export default function ProfileScreen() {
                   onBlur={field.onBlur}
                   onChangeText={field.onChange}
                   placeholder="voce@exemplo.com"
-                  placeholderTextColor="#a39887"
+                  placeholderTextColor={theme.colors.muted}
                   style={[styles.input, fieldState.error && styles.inputError]}
                   value={field.value}
                 />
@@ -194,7 +216,7 @@ export default function ProfileScreen() {
             activeOpacity={0.82}
           >
             {atualizacao.isPending ? (
-              <ActivityIndicator color="#fffdf8" />
+              <ActivityIndicator color={theme.colors.surface} />
             ) : (
               <Text style={styles.primaryButtonText}>Salvar alterações</Text>
             )}
@@ -224,7 +246,7 @@ function Estado({ mensagem }: { mensagem: string }) {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#f5f1e8" },
+  screen: { flex: 1, backgroundColor: theme.colors.canvas },
   scrollContent: {
     flexGrow: 1,
     justifyContent: "center",
@@ -236,65 +258,67 @@ const styles = StyleSheet.create({
     maxWidth: 520,
     gap: 16,
     padding: 26,
-    borderRadius: 16,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#e7dfd2",
-    backgroundColor: "#fffdf8",
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surface,
   },
-  eyebrow: { color: "#9a684c", fontSize: 10, fontWeight: "800", letterSpacing: 2 },
-  title: { color: "#493b2a", fontSize: 27, fontWeight: "800" },
-  subtitle: { color: "#78664f", fontSize: 14, lineHeight: 21 },
+  eyebrow: { color: theme.colors.accent, fontSize: 10, fontWeight: "800", letterSpacing: 2 },
+  title: { color: theme.colors.ink, fontFamily: theme.fonts.serif, fontSize: 31, fontWeight: "400" },
+  subtitle: { color: theme.colors.body, fontSize: 14, lineHeight: 21 },
   historyLink: { alignSelf: "flex-start", paddingVertical: 3 },
-  historyLinkText: { color: "#536b51", fontSize: 13, fontWeight: "700", textDecorationLine: "underline" },
+  historyLinkText: { color: theme.colors.accent, fontSize: 13, fontWeight: "700", textDecorationLine: "underline" },
+  logoutButton: { minHeight: 44, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: theme.colors.borderStrong, borderRadius: 5, paddingHorizontal: 16 },
+  logoutButtonText: { color: theme.colors.danger, fontSize: 13, fontWeight: "700" },
   field: { gap: 6 },
-  label: { color: "#5d4e3d", fontSize: 13, fontWeight: "600" },
+  label: { color: theme.colors.ink, fontSize: 13, fontWeight: "600" },
   input: {
     minHeight: 46,
     borderWidth: 1,
-    borderColor: "#d9d0c2",
-    borderRadius: 9,
+    borderColor: theme.colors.borderStrong,
+    borderRadius: 5,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    color: "#493b2a",
-    backgroundColor: "#fffefa",
+    color: theme.colors.ink,
+    backgroundColor: theme.colors.surface,
     fontSize: 15,
   },
-  inputError: { borderColor: "#b34e3e" },
-  fieldError: { color: "#a13e32", fontSize: 12 },
+  inputError: { borderColor: theme.colors.danger },
+  fieldError: { color: theme.colors.danger, fontSize: 12 },
   primaryButton: {
     minHeight: 50,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 10,
-    backgroundColor: "#536b51",
+    borderRadius: 6,
+    backgroundColor: theme.colors.accent,
     paddingHorizontal: 18,
     marginTop: 4,
   },
   disabledButton: { opacity: 0.55 },
-  primaryButtonText: { color: "#fffdf8", fontSize: 15, fontWeight: "700" },
+  primaryButtonText: { color: theme.colors.surface, fontSize: 15, fontWeight: "700" },
   backButton: { alignSelf: "center", paddingVertical: 4 },
-  backButtonText: { color: "#897b68", fontSize: 12, fontWeight: "600" },
+  backButtonText: { color: theme.colors.muted, fontSize: 12, fontWeight: "600" },
   secondaryButton: {
     minHeight: 42,
     justifyContent: "center",
     marginTop: 4,
     paddingHorizontal: 16,
-    borderRadius: 9,
-    backgroundColor: "#536b51",
+    borderRadius: 5,
+    backgroundColor: theme.colors.accent,
   },
-  secondaryButtonText: { color: "#fffdf8", fontSize: 13, fontWeight: "700" },
+  secondaryButtonText: { color: theme.colors.surface, fontSize: 13, fontWeight: "700" },
   successNotice: {
-    color: "#436243",
-    backgroundColor: "#e7efe3",
-    borderRadius: 9,
+    color: theme.colors.success,
+    backgroundColor: theme.colors.successSoft,
+    borderRadius: 5,
     padding: 12,
     fontSize: 13,
     lineHeight: 19,
   },
   errorNotice: {
-    color: "#8b3329",
-    backgroundColor: "#f5e4df",
-    borderRadius: 9,
+    color: theme.colors.danger,
+    backgroundColor: theme.colors.dangerSoft,
+    borderRadius: 5,
     padding: 12,
     fontSize: 13,
     lineHeight: 19,
@@ -304,9 +328,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 12,
-    backgroundColor: "#f5f1e8",
+    backgroundColor: theme.colors.canvas,
     padding: 24,
   },
-  stateTitle: { color: "#493b2a", fontSize: 19, fontWeight: "700", textAlign: "center" },
-  stateText: { color: "#78664f", fontSize: 14, lineHeight: 21, textAlign: "center" },
+  stateTitle: { color: theme.colors.ink, fontSize: 19, fontWeight: "700", textAlign: "center" },
+  stateText: { color: theme.colors.body, fontSize: 14, lineHeight: 21, textAlign: "center" },
 });

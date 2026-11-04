@@ -1,3 +1,4 @@
+import { theme } from "@/theme";
 import { useLocalSearchParams } from "expo-router";
 import { router, type Href } from "expo-router";
 import { useMemo } from "react";
@@ -33,7 +34,7 @@ export default function BibliotecaVendedorScreen() {
   if (biblioteca.isPending) {
     return (
       <View style={styles.state}>
-        <ActivityIndicator size="large" color="#536b51" />
+        <ActivityIndicator size="large" color={theme.colors.accent} />
         <Text style={styles.stateText}>Carregando biblioteca…</Text>
       </View>
     );
@@ -135,7 +136,7 @@ function Estado({ mensagem }: { mensagem: string }) {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#f5f1e8",
+    backgroundColor: theme.colors.canvas,
   },
   container: {
     width: "100%",
@@ -148,31 +149,32 @@ const styles = StyleSheet.create({
     marginBottom: 22,
     padding: 22,
     borderWidth: 1,
-    borderColor: "#e7dfd2",
-    borderRadius: 15,
-    backgroundColor: "#fffdf8",
+    borderColor: theme.colors.border,
+    borderRadius: 6,
+    backgroundColor: theme.colors.surface,
   },
   eyebrow: {
-    color: "#9a684c",
+    color: theme.colors.accent,
     fontSize: 10,
     fontWeight: "800",
     letterSpacing: 1.5,
   },
   title: {
     marginTop: 8,
-    color: "#493b2a",
-    fontSize: 25,
-    fontWeight: "700",
+    color: theme.colors.ink,
+    fontFamily: theme.fonts.serif,
+    fontSize: 30,
+    fontWeight: "400",
   },
   sellerName: {
     marginTop: 12,
-    color: "#536b51",
+    color: theme.colors.accent,
     fontSize: 18,
     fontWeight: "700",
   },
   count: {
     marginTop: 5,
-    color: "#897b68",
+    color: theme.colors.muted,
     fontSize: 13,
   },
   list: {
@@ -184,31 +186,31 @@ const styles = StyleSheet.create({
     gap: 16,
     padding: 14,
     borderWidth: 1,
-    borderColor: "#e7dfd2",
-    borderRadius: 14,
-    backgroundColor: "#fffdf8",
+    borderColor: theme.colors.border,
+    borderRadius: 5,
+    backgroundColor: theme.colors.surface,
   },
   cover: {
     width: 88,
     height: 122,
     borderRadius: 5,
-    backgroundColor: "#e9e0d1",
+    backgroundColor: theme.colors.surfaceSoft,
   },
   coverPlaceholder: {
     alignItems: "center",
     justifyContent: "center",
     padding: 9,
-    backgroundColor: "#536b51",
+    backgroundColor: theme.colors.accent,
   },
   placeholderText: {
-    color: "#fff8eb",
+    color: theme.colors.surface,
     fontSize: 12,
     fontWeight: "800",
     textAlign: "center",
   },
   placeholderMark: {
     marginTop: 8,
-    color: "#f4e8d4",
+    color: theme.colors.accentSoft,
     fontSize: 7,
     fontWeight: "700",
     letterSpacing: 0.5,
@@ -218,7 +220,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   bookTitle: {
-    color: "#493b2a",
+    color: theme.colors.ink,
     fontSize: 17,
     fontWeight: "700",
   },
@@ -226,12 +228,12 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
   },
   author: {
-    color: "#817561",
+    color: theme.colors.body,
     fontSize: 13,
   },
   price: {
     marginTop: 5,
-    color: "#536b51",
+    color: theme.colors.accent,
     fontSize: 17,
     fontWeight: "800",
   },
@@ -240,18 +242,18 @@ const styles = StyleSheet.create({
     gap: 8,
     padding: 25,
     borderWidth: 1,
-    borderColor: "#e7dfd2",
-    borderRadius: 14,
-    backgroundColor: "#fffdf8",
+    borderColor: theme.colors.border,
+    borderRadius: 5,
+    backgroundColor: theme.colors.surface,
   },
   emptyTitle: {
-    color: "#493b2a",
+    color: theme.colors.ink,
     fontSize: 17,
     fontWeight: "700",
     textAlign: "center",
   },
   emptyText: {
-    color: "#78664f",
+    color: theme.colors.body,
     fontSize: 13,
     lineHeight: 19,
     textAlign: "center",
@@ -262,16 +264,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 12,
     padding: 24,
-    backgroundColor: "#f5f1e8",
+    backgroundColor: theme.colors.canvas,
   },
   errorTitle: {
-    color: "#493b2a",
+    color: theme.colors.ink,
     fontSize: 19,
     fontWeight: "700",
     textAlign: "center",
   },
   stateText: {
-    color: "#78664f",
+    color: theme.colors.body,
     fontSize: 14,
     lineHeight: 21,
     textAlign: "center",
@@ -282,11 +284,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 4,
     paddingHorizontal: 16,
-    borderRadius: 9,
-    backgroundColor: "#536b51",
+    borderRadius: 5,
+    backgroundColor: theme.colors.accent,
   },
   retryButtonText: {
-    color: "#fffdf8",
+    color: theme.colors.surface,
     fontSize: 13,
     fontWeight: "700",
   },

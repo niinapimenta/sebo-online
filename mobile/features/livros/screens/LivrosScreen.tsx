@@ -1,4 +1,4 @@
-import { StatusBar } from "expo-status-bar";
+import { theme } from "@/theme";
 import { router, type Href } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -9,27 +9,27 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
 import { livrosTemporarios } from "../data/livrosTemporarios";
 import { useCurrentUser, authApiConfigurada } from "@/features/auth/hooks/useCurrentUser";
-import { useLogout } from "@/features/auth/hooks/useLogout";
 import { useDeleteLivro } from "../hooks/useDeleteLivro";
 import { useLivros } from "../hooks/useLivros";
-import { useCarrinho } from "@/features/carrinho/context/CarrinhoProvider";
 
 const apiConfigurada = Boolean(process.env.EXPO_PUBLIC_API_URL?.trim());
 
 export default function LivrosScreen() {
+  const { width } = useWindowDimensions();
   const { data: livrosApi, error, isError, isFetching } = useLivros();
-  const { carrinho } = useCarrinho();
   const usuarioAtual = useCurrentUser();
-  const logout = useLogout();
   const exclusao = useDeleteLivro();
   const exclusaoEmAndamento = useRef(false);
   const [confirmandoId, setConfirmandoId] = useState<string | null>(null);
   const [cadastroLivroPendente, setCadastroLivroPendente] = useState(false);
+  const [busca, setBusca] = useState("");
   const verificandoCadastroLivro =
     cadastroLivroPendente && (usuarioAtual.isPending || usuarioAtual.isFetching);
   const usandoDemonstracao = !livrosApi;
@@ -50,7 +50,7 @@ export default function LivrosScreen() {
 
     if (usuarioAtual.data) {
       setCadastroLivroPendente(false);
-      router.push("./livros/novo" as Href);
+      router.push("/livros/novo" as Href);
       return;
     }
 
@@ -83,6 +83,14 @@ export default function LivrosScreen() {
         selo: undefined,
         temporario: false,
       }));
+  const termoBusca = busca.trim().toLocaleLowerCase("pt-BR");
+  const livrosFiltrados = termoBusca
+    ? livrosExibidos.filter((livro) =>
+        `${livro.titulo} ${livro.autor}`.toLocaleLowerCase("pt-BR").includes(termoBusca),
+      )
+    : livrosExibidos;
+  const alturaCapa = width < 450 ? 190 : width < 760 ? 205 : 220;
+  const larguraCard = width < 450 ? "100%" : width < 760 ? "48%" : "31.6%";
 
   function abrirRotaDeEscrita(href: Href) {
     if (!authApiConfigurada) {
@@ -161,76 +169,13 @@ export default function LivrosScreen() {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
-      <StatusBar style="dark" />
       <View style={styles.content}>
-        <View style={styles.topline}>
-          <Text style={styles.brand}>traça</Text>
-          <View style={styles.toplineActions}>
-            <Text style={styles.toplineNote}>LIVROS COM HISTÓRIA</Text>
-            <TouchableOpacity
-              accessibilityRole="button"
-              onPress={() => router.push("/carrinho" as Href)}
-              style={styles.accountButton}
-            >
-              <Text style={styles.accountButtonText}>
-                Carrinho ({carrinho.itens.reduce((total, item) => total + item.quantidade, 0)})
-              </Text>
-            </TouchableOpacity>
-            {verificandoSessao ? (
-              <View style={styles.sessionStatus}>
-                <ActivityIndicator size="small" color="#536b51" />
-                <Text style={styles.accountStatusText}>Verificando sessão</Text>
-              </View>
-            ) : erroVerificacaoSessao ? (
-              <TouchableOpacity
-                accessibilityRole="button"
-                onPress={() => void usuarioAtual.refetch()}
-                style={styles.accountButton}
-              >
-                <Text style={styles.accountButtonText}>Tentar novamente</Text>
-              </TouchableOpacity>
-            ) : usuarioAutenticado ? (
-              <View style={styles.sessionStatus}>
-                <TouchableOpacity
-                  accessibilityRole="link"
-                  onPress={() => router.push("/perfil" as Href)}
-                >
-                  <Text style={[styles.accountStatusText, styles.profileLink]} numberOfLines={1}>
-                    {usuarioAtual.data?.name}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  accessibilityRole="button"
-                  disabled={logout.isPending}
-                  onPress={() => logout.mutate()}
-                  style={styles.accountButton}
-                >
-                  {logout.isPending ? (
-                    <ActivityIndicator size="small" color="#536b51" />
-                  ) : (
-                    <Text style={styles.accountButtonText}>Sair</Text>
-                  )}
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <TouchableOpacity
-                accessibilityRole="button"
-                onPress={() => router.push("/(auth)/login")}
-                style={styles.accountButton}
-              >
-                <Text style={styles.accountButtonText}>Entrar</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-
         <View style={styles.intro}>
-          <Text style={styles.kicker}>SEBO ONLINE</Text>
-          <Text style={styles.title}>Traça — Sebo Online</Text>
-          <Text style={styles.subtitle}>
-            Boas histórias merecem continuar circulando. Encontre sua próxima
-            leitura por aqui.
-          </Text>
+          <View style={styles.introCopy}>
+            <Text style={styles.kicker}>ENTRE ESTANTES E ENCONTROS</Text>
+            <Text style={styles.title}>Qual vai ser sua próxima história?</Text>
+            <Text style={styles.subtitle}>Livros que já foram amados. Prontos para novos capítulos.</Text>
+          </View>
           <TouchableOpacity
             accessibilityRole="button"
             style={[
@@ -244,7 +189,7 @@ export default function LivrosScreen() {
           >
             {verificandoCadastroLivro ? (
               <View style={styles.createButtonContent}>
-                <ActivityIndicator size="small" color="#fffdf8" />
+                <ActivityIndicator size="small" color={theme.colors.surface} />
                 <Text style={styles.createButtonText}>
                   Aguardando verificação…
                 </Text>
@@ -261,16 +206,38 @@ export default function LivrosScreen() {
                     ? "Tentar novamente para continuar"
                     : !verificandoSessao && !usuarioAutenticado
                       ? "Entrar para cadastrar livro"
-                      : "＋ Cadastrar livro"}
+                : "＋ Vender um livro  ›"}
               </Text>
             )}
           </TouchableOpacity>
+        </View>
+
+        <View style={styles.searchBox}>
+          <View style={styles.searchIcon} accessible={false}>
+            <View style={styles.searchLens} />
+            <View style={styles.searchHandle} />
+          </View>
+          <TextInput
+            accessibilityLabel="Buscar por título ou autor"
+            value={busca}
+            onChangeText={setBusca}
+            placeholder="Busque por título ou autor..."
+            placeholderTextColor={theme.colors.muted}
+            returnKeyType="search"
+            style={styles.searchInput}
+          />
+          {busca.length > 0 ? (
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Limpar busca" onPress={() => setBusca("")} style={styles.clearSearch}>
+              <Text style={styles.clearSearchText}>×</Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
 
         <View style={styles.shelfHeader}>
           <View>
             <Text style={styles.sectionEyebrow}>ESCOLHAS DA ESTANTE</Text>
             <Text style={styles.sectionTitle}>Livros para descobrir</Text>
+            <Text style={styles.resultCount}>{livrosFiltrados.length} {livrosFiltrados.length === 1 ? "livro" : "livros"} na estante</Text>
           </View>
           <View style={styles.demoBadge}>
             <View style={styles.demoDot} />
@@ -305,15 +272,7 @@ export default function LivrosScreen() {
             </TouchableOpacity>
           </View>
         ) : null}
-
-        {logout.isError ? (
-          <Text accessibilityRole="alert" style={styles.authErrorText}>
-            Não foi possível encerrar sua sessão. Você continua conectado; tente
-            novamente.
-          </Text>
-        ) : null}
-
-        {!apiConfigurada ? (
+{!apiConfigurada ? (
           <Text style={styles.apiMessage}>
             A API Laravel não está configurada. O acervo temporário é apenas
             demonstrativo; cadastro, edição e exclusão dependem do backend.
@@ -326,27 +285,28 @@ export default function LivrosScreen() {
           </Text>
         ) : null}
 
-        {!usandoDemonstracao && livrosExibidos.length === 0 ? (
+        {livrosFiltrados.length === 0 ? (
           <Text style={styles.emptyMessage}>
-            Nenhum livro cadastrado no acervo.
+            {termoBusca ? "Nenhum livro encontrado para essa busca." : "Nenhum livro cadastrado no acervo."}
           </Text>
         ) : null}
 
         <View style={styles.list}>
-          {livrosExibidos.map((livro) => (
-            <View key={livro.id} style={styles.card}>
+          {livrosFiltrados.map((livro) => (
+            <View key={livro.id} style={[styles.card, { width: larguraCard }]}>
               {livro.foto ? (
                 <Image
                   source={{ uri: livro.foto }}
-                  style={styles.cover}
+                  style={[styles.cover, { height: alturaCapa }]}
                   accessibilityLabel={`Capa de ${livro.titulo}`}
                 />
               ) : (
                 <View
                   style={[
                     styles.cover,
+                    { height: alturaCapa },
                     styles.coverPlaceholder,
-                    { backgroundColor: livro.corCapa ?? "#e9e0d1" },
+                    { backgroundColor: livro.corCapa ?? theme.colors.surfaceSoft },
                   ]}
                 >
                   {livro.selo ? (
@@ -468,7 +428,7 @@ export default function LivrosScreen() {
                       activeOpacity={0.8}
                     >
                       {exclusao.isPending && exclusao.variables === livro.id ? (
-                        <ActivityIndicator size="small" color="#9b463b" />
+                        <ActivityIndicator size="small" color={theme.colors.danger} />
                       ) : (
                         <Text style={styles.deleteButtonText}>
                           {confirmandoId === livro.id
@@ -499,109 +459,66 @@ export default function LivrosScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#f5f1e8",
+    backgroundColor: theme.colors.canvas,
   },
   container: {
     alignItems: "center",
     paddingHorizontal: 22,
+    paddingTop: 18,
     paddingBottom: 48,
   },
   content: {
     width: "100%",
-    maxWidth: 900,
-  },
-  topline: {
-    minHeight: 70,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: "#ded6c8",
-  },
-  toplineActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    flexWrap: "wrap",
-    gap: 12,
-  },
-  sessionStatus: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  accountStatusText: {
-    maxWidth: 150,
-    color: "#78664f",
-    fontSize: 11,
-    fontWeight: "600",
-  },
-  profileLink: {
-    textDecorationLine: "underline",
-  },
-  accountButton: {
-    minHeight: 32,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#c9d2c3",
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-  },
-  accountButtonText: {
-    color: "#536b51",
-    fontSize: 11,
-    fontWeight: "700",
-  },
-  brand: {
-    color: "#493b2a",
-    fontSize: 27,
-    fontWeight: "800",
-    letterSpacing: -1.5,
-  },
-  toplineNote: {
-    color: "#897b68",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1.5,
+    maxWidth: 1120,
   },
   intro: {
-    paddingTop: 42,
-    paddingBottom: 36,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 20,
+    paddingTop: 26,
+    paddingBottom: 23,
   },
+  introCopy: { flex: 1, minWidth: 240, maxWidth: 690 },
   kicker: {
-    color: "#9a684c",
-    fontSize: 11,
-    fontWeight: "800",
-    letterSpacing: 2,
+    color: theme.colors.accent,
+    fontSize: 9,
+    fontWeight: "700",
+    letterSpacing: 1.9,
   },
   title: {
-    color: "#493b2a",
+    color: theme.colors.ink,
+    fontFamily: theme.fonts.serif,
     fontSize: 34,
-    fontWeight: "800",
-    letterSpacing: -1.2,
-    marginTop: 9,
+    lineHeight: 41,
+    fontWeight: "400",
+    marginTop: 12,
   },
   subtitle: {
-    color: "#78664f",
-    fontSize: 15,
-    lineHeight: 23,
-    marginTop: 12,
+    color: theme.colors.body,
+    fontSize: 12,
+    lineHeight: 19,
+    marginTop: 8,
     maxWidth: 560,
   },
   createButton: {
     alignSelf: "flex-start",
-    backgroundColor: "#536b51",
-    borderRadius: 9,
-    marginTop: 18,
-    paddingHorizontal: 15,
-    paddingVertical: 11,
+    minHeight: 42,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: theme.colors.surface,
+    borderWidth: 1,
+    borderColor: theme.colors.borderStrong,
+    borderRadius: 5,
+    marginTop: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 9,
   },
   createButtonText: {
-    color: "#fffdf8",
-    fontSize: 13,
-    fontWeight: "700",
+    color: theme.colors.ink,
+    fontSize: 12,
+    fontWeight: "600",
   },
   createButtonContent: {
     flexDirection: "row",
@@ -609,25 +526,45 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 8,
   },
+  searchBox: {
+    minHeight: 44,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingHorizontal: 13,
+    borderWidth: 1,
+    borderColor: theme.colors.borderStrong,
+    borderRadius: 5,
+    backgroundColor: theme.colors.surface,
+    marginBottom: 29,
+  },
+  searchIcon: { width: 17, height: 17, position: "relative", marginRight: 1 },
+  searchLens: { width: 12, height: 12, borderRadius: 7, borderWidth: 1.5, borderColor: theme.colors.muted },
+  searchHandle: { position: "absolute", left: 11, top: 11, width: 6, height: 1.5, backgroundColor: theme.colors.muted, transform: [{ rotate: "45deg" }] },
+  searchInput: { flex: 1, minHeight: 42, color: theme.colors.ink, fontSize: 12 },
+  clearSearch: { width: 28, height: 32, alignItems: "center", justifyContent: "center" },
+  clearSearchText: { color: theme.colors.muted, fontSize: 22, lineHeight: 26 },
   shelfHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-end",
+    alignItems: "center",
     gap: 14,
-    marginBottom: 18,
+    marginBottom: 16,
   },
   sectionEyebrow: {
-    color: "#9a684c",
+    color: theme.colors.accent,
     fontSize: 10,
     fontWeight: "800",
     letterSpacing: 1.7,
   },
   sectionTitle: {
-    color: "#493b2a",
+    color: theme.colors.ink,
+    fontFamily: theme.fonts.serif,
     fontSize: 22,
-    fontWeight: "700",
+    fontWeight: "400",
     marginTop: 5,
   },
+  resultCount: { color: theme.colors.muted, fontSize: 10, marginTop: 5 },
   demoBadge: {
     flexDirection: "row",
     alignItems: "center",
@@ -635,35 +572,35 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 7,
     borderRadius: 20,
-    backgroundColor: "#e9e0d1",
+    backgroundColor: theme.colors.surfaceSoft,
   },
   demoDot: {
     width: 7,
     height: 7,
     borderRadius: 4,
-    backgroundColor: "#a46d42",
+    backgroundColor: theme.colors.accent,
   },
   demoBadgeText: {
-    color: "#705b43",
+    color: theme.colors.body,
     fontSize: 9,
     fontWeight: "800",
     letterSpacing: 0.7,
   },
   apiMessage: {
-    color: "#78664f",
-    backgroundColor: "#f1e8d9",
-    borderRadius: 9,
+    color: theme.colors.body,
+    backgroundColor: theme.colors.surfaceSoft,
+    borderRadius: 5,
     fontSize: 12,
     lineHeight: 18,
     marginBottom: 12,
     padding: 11,
   },
   emptyMessage: {
-    color: "#78664f",
-    backgroundColor: "#fffdf8",
-    borderColor: "#e7dfd2",
+    color: theme.colors.body,
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.border,
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 8,
     fontSize: 14,
     lineHeight: 20,
     marginBottom: 14,
@@ -671,8 +608,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   apiError: {
-    color: "#8b3f32",
-    backgroundColor: "#f2e2dc",
+    color: theme.colors.danger,
+    backgroundColor: theme.colors.dangerSoft,
     borderRadius: 8,
     fontSize: 12,
     lineHeight: 18,
@@ -683,11 +620,11 @@ const styles = StyleSheet.create({
     gap: 9,
     marginBottom: 12,
     padding: 11,
-    borderRadius: 9,
-    backgroundColor: "#f2e2dc",
+    borderRadius: 5,
+    backgroundColor: theme.colors.dangerSoft,
   },
   authErrorText: {
-    color: "#8b3f32",
+    color: theme.colors.danger,
     fontSize: 12,
     lineHeight: 18,
   },
@@ -697,38 +634,39 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "#d4aaa1",
+    borderColor: theme.colors.borderStrong,
     borderRadius: 7,
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
   retryButtonText: {
-    color: "#8b3f32",
+    color: theme.colors.danger,
     fontSize: 12,
     fontWeight: "700",
   },
   list: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "flex-start",
     gap: 14,
   },
   card: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 18,
-    padding: 14,
-    borderRadius: 14,
+    flexDirection: "column",
+    alignItems: "stretch",
+    padding: 0,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#e7dfd2",
-    backgroundColor: "#fffdf8",
-    shadowColor: "#493b2a",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.07,
-    shadowRadius: 10,
-    elevation: 2,
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surface,
+    shadowColor: theme.colors.ink,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.035,
+    shadowRadius: 5,
+    elevation: 1,
   },
   cover: {
-    width: 92,
-    height: 126,
-    overflow: "hidden",
+    width: "100%",
+    height: 210,
     justifyContent: "center",
     paddingHorizontal: 11,
     paddingVertical: 12,
@@ -738,7 +676,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   placeholderTitle: {
-    color: "#705b43",
+    color: theme.colors.body,
     textAlign: "center",
   },
   coverSpine: {
@@ -750,7 +688,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.25)",
   },
   coverSelo: {
-    color: "#f8edda",
+    color: theme.colors.surfaceSoft,
     fontSize: 6,
     fontWeight: "800",
     letterSpacing: 1,
@@ -761,13 +699,13 @@ const styles = StyleSheet.create({
     marginVertical: 7,
   },
   coverTitle: {
-    color: "#fff8eb",
+    color: theme.colors.surface,
     fontSize: 12,
     fontWeight: "800",
     lineHeight: 14,
   },
   coverAuthor: {
-    color: "#f4e8d4",
+    color: theme.colors.accentSoft,
     fontSize: 7,
     lineHeight: 10,
     marginTop: 6,
@@ -781,37 +719,39 @@ const styles = StyleSheet.create({
   },
   cardInfo: {
     flex: 1,
-    minHeight: 104,
-    justifyContent: "center",
+    minHeight: 140,
+    justifyContent: "flex-start",
+    padding: 14,
   },
   cardKicker: {
-    color: "#a27d59",
+    color: theme.colors.accent,
     fontSize: 9,
     fontWeight: "800",
     letterSpacing: 1.2,
   },
   bookTitle: {
-    color: "#493b2a",
-    fontSize: 17,
-    fontWeight: "700",
-    lineHeight: 22,
+    color: theme.colors.ink,
+    fontFamily: theme.fonts.serif,
+    fontSize: 16,
+    fontWeight: "400",
+    lineHeight: 21,
     marginTop: 5,
   },
   bookTitleLink: {
     textDecorationLine: "underline",
   },
   author: {
-    color: "#817561",
+    color: theme.colors.body,
     fontSize: 13,
     marginTop: 4,
   },
   seller: {
-    color: "#897b68",
+    color: theme.colors.muted,
     fontSize: 11,
     marginTop: 4,
   },
   sellerLink: {
-    color: "#536b51",
+    color: theme.colors.accent,
     textDecorationLine: "underline",
   },
   cardFooter: {
@@ -824,14 +764,14 @@ const styles = StyleSheet.create({
   editButton: {
     alignSelf: "flex-start",
     borderWidth: 1,
-    borderColor: "#c9d2c3",
+    borderColor: theme.colors.borderStrong,
     borderRadius: 7,
     marginTop: 10,
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
   editButtonText: {
-    color: "#536b51",
+    color: theme.colors.accent,
     fontSize: 12,
     fontWeight: "700",
   },
@@ -848,13 +788,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "#e1c5bf",
+    borderColor: theme.colors.borderStrong,
     borderRadius: 7,
     paddingHorizontal: 9,
     paddingVertical: 5,
   },
   deleteButtonText: {
-    color: "#9b463b",
+    color: theme.colors.danger,
     fontSize: 12,
     fontWeight: "700",
   },
@@ -862,16 +802,16 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   price: {
-    color: "#536b51",
+    color: theme.colors.accent,
     fontSize: 17,
     fontWeight: "800",
   },
   priceNote: {
-    color: "#9a8e7c",
+    color: theme.colors.muted,
     fontSize: 10,
   },
   footerNote: {
-    color: "#897b68",
+    color: theme.colors.muted,
     fontSize: 11,
     lineHeight: 17,
     marginTop: 22,

@@ -1,3 +1,4 @@
+import { theme } from "@/theme";
 import { router } from "expo-router";
 import {
   ActivityIndicator,
@@ -18,7 +19,7 @@ export default function HistoricoComprasScreen() {
   if (usuario.isPending || usuario.isFetching || historico.isPending) {
     return (
       <View style={styles.state}>
-        <ActivityIndicator size="large" color="#536b51" />
+        <ActivityIndicator size="large" color={theme.colors.accent} />
         <Text style={styles.stateText}>Carregando seu histórico…</Text>
       </View>
     );
@@ -105,12 +106,12 @@ function formatarMoeda(valor: string): string {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#f5f1e8" },
+  screen: { flex: 1, backgroundColor: theme.colors.canvas },
   container: { alignItems: "center", padding: 20, paddingBottom: 40 },
   content: { width: "100%", maxWidth: 760 },
-  eyebrow: { color: "#9a684c", fontSize: 10, fontWeight: "800", letterSpacing: 1.7 },
-  title: { marginTop: 8, color: "#493b2a", fontSize: 27, fontWeight: "800" },
-  subtitle: { marginTop: 7, color: "#78664f", fontSize: 14, lineHeight: 21 },
+  eyebrow: { color: theme.colors.accent, fontSize: 10, fontWeight: "800", letterSpacing: 1.7 },
+  title: { marginTop: 8, color: theme.colors.ink, fontFamily: theme.fonts.serif, fontSize: 31, fontWeight: "400" },
+  subtitle: { marginTop: 7, color: theme.colors.body, fontSize: 14, lineHeight: 21 },
   list: { gap: 12, marginTop: 22 },
   orderCard: {
     flexDirection: "row",
@@ -120,40 +121,40 @@ const styles = StyleSheet.create({
     gap: 14,
     padding: 18,
     borderWidth: 1,
-    borderColor: "#e7dfd2",
-    borderRadius: 13,
-    backgroundColor: "#fffdf8",
+    borderColor: theme.colors.border,
+    borderRadius: 8,
+    backgroundColor: theme.colors.surface,
   },
   orderInfo: { flex: 1, minWidth: 160 },
-  orderNumber: { color: "#493b2a", fontSize: 16, fontWeight: "700" },
-  orderDate: { marginTop: 6, color: "#897b68", fontSize: 12 },
+  orderNumber: { color: theme.colors.ink, fontSize: 16, fontWeight: "700" },
+  orderDate: { marginTop: 6, color: theme.colors.muted, fontSize: 12 },
   orderTotalBlock: { alignItems: "flex-end" },
-  totalLabel: { color: "#897b68", fontSize: 11 },
-  orderTotal: { marginTop: 4, color: "#536b51", fontSize: 17, fontWeight: "800" },
+  totalLabel: { color: theme.colors.muted, fontSize: 11 },
+  orderTotal: { marginTop: 4, color: theme.colors.accent, fontSize: 17, fontWeight: "800" },
   emptyCard: {
     alignItems: "center",
     gap: 9,
     marginTop: 22,
     padding: 25,
     borderWidth: 1,
-    borderColor: "#e7dfd2",
-    borderRadius: 14,
-    backgroundColor: "#fffdf8",
+    borderColor: theme.colors.border,
+    borderRadius: 5,
+    backgroundColor: theme.colors.surface,
   },
-  emptyTitle: { color: "#493b2a", fontSize: 17, fontWeight: "700", textAlign: "center" },
-  emptyText: { color: "#78664f", fontSize: 13, lineHeight: 19, textAlign: "center" },
+  emptyTitle: { color: theme.colors.ink, fontSize: 17, fontWeight: "700", textAlign: "center" },
+  emptyText: { color: theme.colors.body, fontSize: 13, lineHeight: 19, textAlign: "center" },
   primaryButton: {
     minHeight: 44,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 6,
     paddingHorizontal: 16,
-    borderRadius: 9,
-    backgroundColor: "#536b51",
+    borderRadius: 5,
+    backgroundColor: theme.colors.accent,
   },
-  primaryButtonText: { color: "#fffdf8", fontSize: 13, fontWeight: "700" },
+  primaryButtonText: { color: theme.colors.surface, fontSize: 13, fontWeight: "700" },
   backButton: { alignSelf: "center", marginTop: 20, padding: 9 },
-  backButtonText: { color: "#536b51", fontSize: 13, fontWeight: "700" },
-  state: { flex: 1, alignItems: "center", justifyContent: "center", gap: 13, padding: 24, backgroundColor: "#f5f1e8" },
-  stateText: { maxWidth: 500, color: "#78664f", fontSize: 14, lineHeight: 21, textAlign: "center" },
+  backButtonText: { color: theme.colors.accent, fontSize: 13, fontWeight: "700" },
+  state: { flex: 1, alignItems: "center", justifyContent: "center", gap: 13, padding: 24, backgroundColor: theme.colors.canvas },
+  stateText: { maxWidth: 500, color: theme.colors.body, fontSize: 14, lineHeight: 21, textAlign: "center" },
 });
