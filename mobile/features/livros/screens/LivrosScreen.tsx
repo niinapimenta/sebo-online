@@ -23,6 +23,8 @@ const apiConfigurada = Boolean(process.env.EXPO_PUBLIC_API_URL?.trim());
 
 export default function LivrosScreen() {
   const { width } = useWindowDimensions();
+  const [hydrated, setHydrated] = useState(Platform.OS !== "web");
+  const larguraLayout = hydrated ? width : 0;
   const { data: livrosApi, error, isError, isFetching } = useLivros();
   const usuarioAtual = useCurrentUser();
   const exclusao = useDeleteLivro();
@@ -30,6 +32,11 @@ export default function LivrosScreen() {
   const [confirmandoId, setConfirmandoId] = useState<string | null>(null);
   const [cadastroLivroPendente, setCadastroLivroPendente] = useState(false);
   const [busca, setBusca] = useState("");
+
+  useEffect(() => {
+    if (Platform.OS === "web") setHydrated(true);
+  }, []);
+
   const verificandoCadastroLivro =
     cadastroLivroPendente && (usuarioAtual.isPending || usuarioAtual.isFetching);
   const usandoDemonstracao = !livrosApi;
@@ -89,8 +96,8 @@ export default function LivrosScreen() {
         `${livro.titulo} ${livro.autor}`.toLocaleLowerCase("pt-BR").includes(termoBusca),
       )
     : livrosExibidos;
-  const alturaCapa = width < 450 ? 190 : width < 760 ? 205 : 220;
-  const larguraCard = width < 450 ? "100%" : width < 760 ? "48%" : "31.6%";
+  const alturaCapa = larguraLayout < 450 ? 190 : larguraLayout < 760 ? 205 : 220;
+  const larguraCard = larguraLayout < 450 ? "100%" : larguraLayout < 760 ? "48%" : "31.6%";
 
   function abrirRotaDeEscrita(href: Href) {
     if (!authApiConfigurada) {

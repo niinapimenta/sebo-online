@@ -121,6 +121,10 @@ export async function getAuthenticatedUser(): Promise<AuthUser | null> {
 export async function updateAuthenticatedUser(
   payload: UpdateProfilePayload,
 ): Promise<AuthUser> {
+  if (Platform.OS === "web") {
+    await initializeWebCsrf();
+  }
+
   const response =
     Platform.OS === "web"
       ? await webSessionApi.patch<ApiData<AuthUser>>(

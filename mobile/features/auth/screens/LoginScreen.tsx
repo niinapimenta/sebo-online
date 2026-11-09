@@ -1,6 +1,7 @@
 import axios from "axios";
 import { router, useLocalSearchParams, type Href } from "expo-router";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
@@ -46,7 +47,13 @@ function mensagemDoErro(error: unknown): string {
 
 export default function LoginScreen() {
   const { width } = useWindowDimensions();
-  const layoutAmplo = width >= 900;
+  const [hydrated, setHydrated] = useState(Platform.OS !== "web");
+  const layoutAmplo = hydrated && width >= 900;
+
+  useEffect(() => {
+    if (Platform.OS === "web") setHydrated(true);
+  }, []);
+
   const loginMutation = useLogin();
   const params = useLocalSearchParams<{ returnTo?: string | string[] }>();
   const returnTo = Array.isArray(params.returnTo)

@@ -4,9 +4,8 @@ import { Platform } from "react-native";
 import { getAuthToken } from "./tokenStorage";
 
 export function getApiBaseUrl(): string {
-  if (Platform.OS === "web" && typeof window !== "undefined") {
-    const { hostname, protocol } = window.location;
-    return `${protocol}//${hostname}:8000/api`;
+  if (Platform.OS === "web") {
+    return "/api";
   }
 
   const baseUrl = process.env.EXPO_PUBLIC_API_URL?.trim().replace(/\/+$/, "");

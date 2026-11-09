@@ -1,5 +1,6 @@
 import { router, usePathname, type Href } from "expo-router";
-import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { useEffect, useState } from "react";
+import { Image, Platform, Pressable, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { useCarrinho } from "@/features/carrinho/context/CarrinhoProvider";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { theme } from "@/theme";
@@ -7,13 +8,18 @@ import { theme } from "@/theme";
 export default function BrandHeader() {
   const pathname = usePathname();
   const { width } = useWindowDimensions();
+  const [hydrated, setHydrated] = useState(Platform.OS !== "web");
   const { carrinho } = useCarrinho();
   const usuario = useCurrentUser();
-  const compacto = width < 680;
+  const compacto = !hydrated || width < 680;
   const ehCadastro = pathname.includes("cadastro");
   const ehLogin = pathname.includes("login");
   const rotaAuth = ehCadastro || ehLogin;
   const quantidadeCarrinho = carrinho.itens.reduce((soma, item) => soma + item.quantidade, 0);
+
+  useEffect(() => {
+    if (Platform.OS === "web") setHydrated(true);
+  }, []);
 
   function voltar() {
     if (router.canGoBack()) router.back();

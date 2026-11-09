@@ -3,6 +3,10 @@
     "name": "Traça — Sebo Online",
     "slug": "traca-sebo-online",
     "version": "1.0.0",
+    "web": {
+      "bundler": "metro",
+      "output": "server"
+    },
     "orientation": "portrait",
     "scheme": "tracaseboonline",
     "userInterfaceStyle": "automatic",
